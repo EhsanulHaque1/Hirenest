@@ -2,18 +2,41 @@ import "./Pages.css";
 
 import { useEffect, useState } from "react";
 
+// Mock data for fallback when API is not available
+const mockPlatforms = [
+  { icon: "📱", name: "iOS" },
+  { icon: "🤖", name: "Android" },
+  { icon: "🌐", name: "Cross-Platform" },
+  { icon: "📲", name: "React Native" },
+];
+
+const mockBenefits = [
+  "Expert developers with 5+ years experience",
+  "Fast turnaround time",
+  "Quality assurance testing included",
+  "Post-launch support",
+  "Competitive pricing",
+];
+
 function AppDevelopment() {
-  const [platforms, setPlatforms] = useState([]);
-  const [benefits, setBenefits] = useState([]);
+  const [platforms, setPlatforms] = useState(mockPlatforms);
+  const [benefits, setBenefits] = useState(mockBenefits);
 
   useEffect(() => {
     fetch("/api/services/app-development")
-      .then((res) => res.json())
-      .then((data) => {
-        setPlatforms(data.platforms || []);
-        setBenefits(data.benefits || []);
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("API not available");
+        }
+        return res.json();
       })
-      .catch((err) => console.error("Failed to load app dev data", err));
+      .then((data) => {
+        setPlatforms(data.platforms || mockPlatforms);
+        setBenefits(data.benefits || mockBenefits);
+      })
+      .catch((err) => {
+        console.log("Using mock data for app development");
+      });
   }, []);
 
   return (

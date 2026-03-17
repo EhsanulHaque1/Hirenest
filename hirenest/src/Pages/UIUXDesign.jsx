@@ -2,18 +2,44 @@ import "./Pages.css";
 
 import { useEffect, useState } from "react";
 
+// Mock data for fallback when API is not available
+const mockServices = [
+  "Website Design",
+  "Mobile App Design",
+  "Landing Pages",
+  "UI Kits",
+  "Prototyping",
+  "User Research",
+];
+
+const mockProcess = [
+  "Discovery & Research",
+  "Wireframing",
+  "Visual Design",
+  "Prototyping",
+  "User Testing",
+  "Final Delivery",
+];
+
 function UIUXDesign() {
-  const [services, setServices] = useState([]);
-  const [process, setProcess] = useState([]);
+  const [services, setServices] = useState(mockServices);
+  const [process, setProcess] = useState(mockProcess);
 
   useEffect(() => {
     fetch("/api/services/ui-ux-design")
-      .then((res) => res.json())
-      .then((data) => {
-        setServices(data.services || []);
-        setProcess(data.process || []);
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("API not available");
+        }
+        return res.json();
       })
-      .catch((err) => console.error("Failed to load UI/UX data", err));
+      .then((data) => {
+        setServices(data.services || mockServices);
+        setProcess(data.process || mockProcess);
+      })
+      .catch((err) => {
+        console.log("Using mock data for UI/UX design");
+      });
   }, []);
 
   return (

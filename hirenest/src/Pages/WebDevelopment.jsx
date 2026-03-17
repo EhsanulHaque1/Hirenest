@@ -2,14 +2,30 @@ import "./Pages.css";
 
 import { useEffect, useState } from "react";
 
+// Mock data for fallback when API is not available
+const mockDevelopers = [
+  { name: "Alex Johnson", rating: 4.9, projects: 50 },
+  { name: "Sarah Williams", rating: 4.8, projects: 42 },
+  { name: "Michael Brown", rating: 4.7, projects: 38 },
+  { name: "Emily Davis", rating: 4.6, projects: 32 },
+];
+
 function WebDevelopment() {
-  const [developers, setDevelopers] = useState([]);
+  const [developers, setDevelopers] = useState(mockDevelopers);
 
   useEffect(() => {
     fetch("/api/services/web-development")
-      .then((res) => res.json())
-      .then((data) => setDevelopers(data.developers || []))
-      .catch((err) => console.error("Failed to load web dev data", err));
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("API not available");
+        }
+        return res.json();
+      })
+      .then((data) => setDevelopers(data.developers || mockDevelopers))
+      .catch((err) => {
+        console.log("Using mock data for web development");
+        setDevelopers(mockDevelopers);
+      });
   }, []);
 
   return (

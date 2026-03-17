@@ -34,7 +34,17 @@ function AIAssistance() {
         // Token missing/expired
         setMessages((prev) => [
           ...prev,
-          { role: "ai", text: "Unauthorized! Please log in again." },
+          { role: "ai", text: "Please log in to use the AI assistant." },
+        ]);
+        setLoading(false);
+        return;
+      }
+
+      if (!response.ok) {
+        // Handle other errors gracefully
+        setMessages((prev) => [
+          ...prev,
+          { role: "ai", text: "AI service is currently unavailable. Please try again later." },
         ]);
         setLoading(false);
         return;
@@ -46,7 +56,7 @@ function AIAssistance() {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: "Error connecting to AI." },
+        { role: "ai", text: "AI service is currently unavailable. Please try again later." },
       ]);
     } finally {
       setLoading(false);
