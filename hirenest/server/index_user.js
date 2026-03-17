@@ -1,7 +1,4 @@
 /* global process */
-
-import path from "path";
-import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
@@ -10,7 +7,6 @@ import jwt from "jsonwebtoken";
 
 import connectDB from "./connect.cjs";
 import User from "./models/User.js";
-import { sendVerificationEmail } from "./utils/emailService.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import verifyToken from "./middleware/auth.js";
