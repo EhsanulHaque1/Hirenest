@@ -10,20 +10,22 @@ const Home = () => {
 
   // Check for existing user session on mount
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const savedUser = localStorage.getItem("hirenest_user");
-    if (savedUser) {
+    
+    if (token && savedUser) {
       setUser(JSON.parse(savedUser));
+    } else if (token) {
+      // For admin token, restore admin user
+      if (token === "admin-token") {
+        setUser({
+          username: "admin",
+          firstName: "Admin",
+          role: "admin",
+        });
+      }
     }
   }, []);
-
-  // Update localStorage when user changes
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("hirenest_user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("hirenest_user");
-    }
-  }, [user]);
 
   return (
     <>

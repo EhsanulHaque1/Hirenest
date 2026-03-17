@@ -8,20 +8,22 @@ function Layout({ children }) {
 
   // Check for existing user session on mount
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const savedUser = localStorage.getItem("hirenest_user");
-    if (savedUser) {
+    
+    if (token && savedUser) {
       setUser(JSON.parse(savedUser));
+    } else if (token) {
+      // For admin token, restore admin user
+      if (token === "admin-token") {
+        setUser({
+          username: "admin",
+          firstName: "Admin",
+          role: "admin",
+        });
+      }
     }
   }, []);
-
-  // Update localStorage when user changes
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("hirenest_user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("hirenest_user");
-    }
-  }, [user]);
 
   return (
     <>
@@ -34,9 +36,29 @@ function Layout({ children }) {
         setUser={setUser}
         isHome={false}
       />
-      <div style={{ paddingTop: '80px' }}>
+      <div className="layout-content">
         {children}
       </div>
+      <style>{`
+        .layout-content {
+          padding-top: 80px;
+        }
+        @media (max-width: 768px) {
+          .layout-content {
+            padding-top: 70px;
+          }
+        }
+        @media (max-width: 480px) {
+          .layout-content {
+            padding-top: 60px;
+          }
+        }
+        @media (max-width: 320px) {
+          .layout-content {
+            padding-top: 55px;
+          }
+        }
+      `}</style>
     </>
   );
 }

@@ -13,6 +13,7 @@ const complaintSchema = new mongoose.Schema(
       enum: ["pending", "reviewed", "resolved"],
       default: "pending",
     },
+    resolutionMessage: { type: String, trim: true },
   },
   { timestamps: true },
 );

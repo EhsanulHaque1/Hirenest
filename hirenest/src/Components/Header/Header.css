@@ -12,6 +12,85 @@ header {
   z-index: 100;
 }
 
+/* Responsive Header for Small Devices */
+@media screen and (max-width: 768px) {
+  header {
+    padding: 1rem 4%;
+  }
+  
+  .logo img {
+    width: 140px;
+  }
+  
+  nav ul {
+    gap: 1rem;
+  }
+  
+  nav ul li a,
+  nav ul li span {
+    font-size: 0.85rem;
+  }
+  
+  .btn-signin,
+  .btn-signup,
+  .btn-logout {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  header {
+    padding: 0.8rem 3%;
+    flex-wrap: wrap;
+  }
+  
+  .logo img {
+    width: 110px;
+  }
+  
+  nav ul {
+    gap: 0.5rem;
+  }
+  
+  nav ul li a,
+  nav ul li span {
+    font-size: 0.75rem;
+  }
+  
+  .btn-signin,
+  .btn-signup,
+  .btn-logout {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+  }
+  
+  .nav-user {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  header {
+    padding: 0.6rem 2%;
+  }
+  
+  .logo img {
+    width: 90px;
+  }
+  
+  nav ul {
+    gap: 0.3rem;
+  }
+  
+  .btn-signin,
+  .btn-signup,
+  .btn-logout {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+  }
+}
+
 .logo img {
   width: 200px;
   height: auto;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "./Header.css";
 
@@ -14,6 +14,7 @@ const Header = ({
   className,
 }) => {
   const API_BASE = import.meta.env.VITE_API_URL || "/api";
+  const navigate = useNavigate();
 
   const [signInData, setSignInData] = useState({ username: "", password: "" });
   const [signUpData, setSignUpData] = useState({
@@ -39,6 +40,24 @@ const Header = ({
   const submitSignIn = async (e) => {
     e.preventDefault();
 
+    // Check if admin credentials
+    if (signInData.username === "admin" && signInData.password === "admin") {
+      // Set admin user without API call
+      const adminUser = {
+        username: "admin",
+        firstName: "Admin",
+        role: "admin",
+      };
+      localStorage.setItem("token", "admin-token");
+      localStorage.setItem("hirenest_user", JSON.stringify(adminUser));
+      setUser(adminUser);
+      setShowSignIn(false);
+      setSignInData({ username: "", password: "" });
+      // Navigate to admin page
+      navigate("/admin-page");
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
@@ -51,8 +70,10 @@ const Header = ({
         throw new Error(data.error || "Sign in failed");
       }
 
+      const userData = { ...data, role: data.role || "jobSeeker" };
       localStorage.setItem("token", data.token);
-      setUser(data);
+      localStorage.setItem("hirenest_user", JSON.stringify(userData));
+      setUser(userData);
       setShowSignIn(false);
       setSignInData({ username: "", password: "" });
     } catch (error) {
@@ -93,8 +114,10 @@ const Header = ({
         throw new Error(data.error || "Sign up failed");
       }
 
+      const userData = { ...data, role: data.role || signUpData.role || "jobSeeker" };
       localStorage.setItem("token", data.token);
-      setUser(data);
+      localStorage.setItem("hirenest_user", JSON.stringify(userData));
+      setUser(userData);
       setShowSignUp(false);
       setSignUpData({
         firstName: "",
@@ -143,6 +166,8 @@ const Header = ({
                 >
                   Admin Panel
                 </span>
+              ) : user.role === "admin" ? (
+                <Link to="/admin-page">Admin Page</Link>
               ) : (
                 <Link to="/admin-panel">Admin Panel</Link>
               )}
@@ -157,7 +182,9 @@ const Header = ({
                     className="btn-logout"
                     onClick={() => {
                       localStorage.removeItem("token");
+                      localStorage.removeItem("hirenest_user");
                       setUser(null);
+                      navigate("/");
                     }}
                   >
                     Logout
