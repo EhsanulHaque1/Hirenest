@@ -17,19 +17,41 @@ function AdminPanel() {
 
   const fetchMyComplaints = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    const userData = localStorage.getItem("hirenest_user");
+    if (!token || !userData) return;
+
+    const currentUser = JSON.parse(userData);
+    // Login API returns "id", not "_id"
+    const currentUserId = currentUser.id || currentUser._id;
+    const currentUsername = currentUser.username;
 
     try {
       const response = await fetch("/api/complaints/", {
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         const allComplaints = await response.json();
-        // Filter complaints for current user (you might need to decode token to get user ID)
-        setMyComplaints(allComplaints);
+        // Filter complaints to show only current user's complaints
+        // Check by id/_id first, then fall back to username
+        const myComplaintsList = allComplaints.filter((complaint) => {
+          if (complaint.userId) {
+            // If userId is populated as an object, check both _id and id
+            const complaintUserId = complaint.userId._id || complaint.userId.id;
+            if (complaintUserId === currentUserId) {
+              return true;
+            }
+            // Fallback: check by username
+            if (complaint.userId.username === currentUsername) {
+              return true;
+            }
+          }
+          return false;
+        });
+        setMyComplaints(myComplaintsList);
       }
     } catch (error) {
       console.error("Error fetching complaints:", error);
