@@ -1572,27 +1572,7 @@ button:active,
 /* iPhone SE Specific - 320px and below */
 @media (max-width: 320px) {
   /* Admin Stats */
-  .jobs-stats-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* Jobs Stats Grid Responsive */
-@media (max-width: 768px) {
-  .jobs-stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    max-width: 100% !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .jobs-stats-grid {
-    grid-template-columns: 1fr !important;
-    max-width: 100% !important;
-  }
-}
-
-.admin-stats-grid {
+  .admin-stats-grid {
     gap: 12px;
   }
 
@@ -1759,4 +1739,4 @@ button:active,
   .process-card.contact-card p {
     font-size: 0.85rem;
   }
-
+}
