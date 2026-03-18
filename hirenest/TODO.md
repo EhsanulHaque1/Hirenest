@@ -1,12 +1,18 @@
-# AI Chatbot Guest Access Fix
+# Profile Completion Feature - Minimal Append
 
-## Steps:
+**Status:** Clean reset
 
-- [x] 1. Edit server/routes/aiRoutes.js: Remove verifyToken middleware from POST /chat route
-- [x] 2. Edit server/controllers/aiController.js: Remove unused auth comment
-- [x] 3. Update this TODO.md with completions
-- [x] 4. Restart server and test chatbot for guest/logged users  
-     **Instructions:**
-  - Backend: `cd server && node index.js`
-  - Frontend: `npm run dev`
-  - Test AI chat without/with login.
+**Files:**
+
+1. server/models/User.js - Add fields
+2. server/config.env - Cloudinary keys
+3. server/middleware/upload.js - NEW Cloudinary multer
+4. server/controllers/profileController.js - NEW completeProfile
+5. server/index.js - Add routes
+6. src/Components/Header/Header.jsx - Post-auth redirect
+7. src/Pages/CreateProfile.jsx - Form
+8. Install cloudinary multer
+
+**Cloudinary:** dfzq8dsd0 / 267258339944337 / hnNroWeXrYoLg965zI-XdNr8zzM
+
+**Next:** User model update

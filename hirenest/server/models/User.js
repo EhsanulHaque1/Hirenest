@@ -15,11 +15,21 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ["jobSeeker", "jobProvider"], required: true },
     isVerified: { type: Boolean, default: false },
+    profileComplete: { type: Boolean, default: false },
     verificationToken: { type: String },
     verificationTokenExpires: { type: Date },
+    nidImages: [{ type: String }], // Cloudinary URLs for jobProvider (front and back)
+    certificationImages: [{ type: String }], // Cloudinary URLs for jobSeeker
+    jobField: { 
+      type: String, 
+      enum: ['Web Development', 'App Development', 'UI/UX Design', 'Marketing'],
+      required: false 
+    },
+    appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }]
   },
   { timestamps: true },
 );
 
 const User = mongoose.model("User", userSchema);
 export default User;
+
