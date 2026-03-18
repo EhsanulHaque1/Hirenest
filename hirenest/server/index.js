@@ -14,6 +14,7 @@ import User from "./models/User.js";
 import { sendVerificationEmail } from "./utils/emailService.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
 import verifyToken from "./middleware/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,6 +36,17 @@ connectDB();
 /* Routes */
 app.use("/api/ai", aiRoutes);
 app.use("/api/complaints", complaintRoutes);
+app.use("/api/jobs", jobRoutes);
+
+import multer from 'multer';
+import { uploadToCloudinary } from "./middleware/upload.js";
+import { completeProfile, getProfile } from "./controllers/profileController.js";
+
+// Profile routes - append
+app.get("/api/auth/profile", verifyToken, getProfile);
+
+app.put("/api/auth/complete-profile", multer({ storage: multer.memoryStorage() }).fields([{ name: 'nidImages', maxCount: 2 }, { name: 'certificationImages', maxCount: 5 }]), verifyToken, completeProfile);
+
 
 /* =========================
    ADMIN ROUTES
@@ -201,6 +213,7 @@ app.post("/api/auth/register", async (req, res) => {
       passwordHash,
       role,
       isVerified: false,
+      profileComplete: false,
       verificationToken,
       verificationTokenExpires: Date.now() + 24 * 60 * 60 * 1000,
     });
@@ -270,6 +283,7 @@ app.post("/api/auth/login", async (req, res) => {
       email: user.email,
       username: user.username,
       role: user.role,
+      profileComplete: user.profileComplete,
       token,
     });
   } catch (error) {
