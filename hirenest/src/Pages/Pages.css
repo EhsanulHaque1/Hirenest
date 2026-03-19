@@ -2404,3 +2404,702 @@ button:active,
     font-size: 0.8rem;
   }
 }
+
+/* ==========================================
+   Modern Dashboard UI Styles
+   ========================================== */
+
+/* Dashboard Stats */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.stat-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary-green-light);
+}
+
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-number {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.section-header h2 {
+  margin-bottom: 0;
+}
+
+/* Modern Empty State */
+.modern-empty-state {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: 60px 32px;
+  text-align: center;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.empty-icon-wrapper {
+  width: 100px;
+  height: 100px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.3);
+}
+
+.empty-icon {
+  font-size: 3rem;
+}
+
+.modern-empty-state h3 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  font-weight: 700;
+}
+
+.modern-empty-state p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0 0 28px 0;
+  line-height: 1.6;
+}
+
+/* Modern Job Card */
+.modern-job-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-job-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.modern-job-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary-green-light);
+}
+
+.modern-job-card:hover::before {
+  transform: scaleX(1);
+}
+
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.job-card-badge {
+  display: flex;
+  align-items: center;
+}
+
+.badge-active {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--primary-green-dark);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.badge-closed {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.btn-close-job {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-close-job:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+}
+
+.job-card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  line-height: 1.4;
+}
+
+.job-card-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.applicants-count {
+  color: var(--primary-blue-dark);
+}
+
+/* Applicants Section */
+.applicants-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-light);
+}
+
+.applicants-header h4 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+  font-weight: 700;
+}
+
+.applicants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.applicant-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s ease;
+}
+
+.applicant-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.applicant-avatar {
+  width: 44px;
+  height: 44px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.applicant-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.applicant-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 2px 0;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.applicant-field {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.btn-chat {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-chat:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+/* Prominent Chat Button */
+.btn-chat-prominent {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  white-space: nowrap;
+  border: 2px solid transparent;
+}
+
+.btn-chat-prominent:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.5);
+  border-color: var(--primary-green-light);
+}
+
+.btn-chat-prominent .chat-icon {
+  font-size: 1.2rem;
+}
+
+.btn-chat-prominent .chat-text {
+  font-size: 1rem;
+}
+
+/* Highlighted Applicant Card with Chat */
+.applicant-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--bg-secondary), #ecfdf5);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.applicant-item:hover {
+  background: linear-gradient(135deg, var(--bg-tertiary), #d1fae5);
+  border-color: var(--primary-green-light);
+  transform: scale(1.02);
+}
+
+.applicant-item .chat-highlight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.applicant-item .chat-highlight:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
+}
+
+.applicant-item .chat-highlight .chat-icon {
+  font-size: 1.1rem;
+}
+
+/* Applicants Hint */
+.applicants-hint {
+  font-size: 0.85rem;
+  color: var(--primary-green);
+  margin: 0 0 0 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================================
+   Responsive - Modern Dashboard
+   ========================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    padding: 18px;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .section-header .btn-modern-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modern-empty-state {
+    padding: 40px 20px;
+  }
+
+  .empty-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+  }
+
+  .empty-icon {
+    font-size: 2.5rem;
+  }
+
+  .modern-job-card {
+    padding: 20px;
+  }
+
+  .job-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .job-card-title {
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+  }
+
+  .job-card-details {
+    grid-template-columns: 1fr 1fr;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .btn-close-job {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .applicant-item {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .applicant-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 0.8rem;
+  }
+
+  .btn-chat {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 16px;
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .stat-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+
+  .stat-number {
+    font-size: 1.35rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  .content-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .modern-empty-state {
+    padding: 32px 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .empty-icon-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  .empty-icon {
+    font-size: 2rem;
+  }
+
+  .modern-empty-state h3 {
+    font-size: 1.2rem;
+  }
+
+  .modern-empty-state p {
+    font-size: 0.9rem;
+  }
+
+  .modern-job-card {
+    padding: 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .job-card-title {
+    font-size: 1.05rem;
+  }
+
+  .job-card-details {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .detail-label {
+    font-size: 0.7rem;
+  }
+
+  .detail-value {
+    font-size: 0.9rem;
+  }
+
+  .badge-active,
+  .badge-closed {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+  }
+
+  .applicants-section {
+    margin-top: 18px;
+    padding-top: 18px;
+  }
+
+  .applicants-header h4 {
+    font-size: 0.95rem;
+  }
+
+  .applicant-item {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .applicant-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 0.7rem;
+  }
+
+  .applicant-name {
+    font-size: 0.9rem;
+  }
+
+  .applicant-field {
+    font-size: 0.75rem;
+  }
+
+  .btn-chat {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .btn-chat-prominent {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  .btn-chat-prominent .chat-text {
+    display: none;
+  }
+
+  .applicant-item .chat-highlight {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+
+  .applicant-item .chat-highlight span:last-child {
+    display: none;
+  }
+
+  .applicants-hint {
+    display: none;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 320px) {
+  .stat-card {
+    padding: 14px;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .stat-number {
+    font-size: 1.2rem;
+  }
+
+  .modern-job-card {
+    padding: 14px;
+  }
+
+  .job-card-title {
+    font-size: 1rem;
+  }
+}

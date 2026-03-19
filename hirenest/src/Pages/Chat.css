@@ -1,29 +1,31 @@
 .chat-page-wrapper {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 100px 20px 60px;
   display: flex;
   flex-direction: column;
   gap: 30px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
 }
 
 .chat-header-section {
   width: 100%;
-  border-bottom: 2px solid #f1f5f9;
+  border-bottom: 2px solid var(--border-light);
   padding-bottom: 20px;
   margin-bottom: 10px;
 }
 
 .chat-main-title {
   font-size: 2.5rem;
-  color: #1e293b;
+  color: var(--text-primary);
   margin: 0 0 10px 0;
+  font-weight: 700;
 }
 
 .chat-description {
   font-size: 1.1rem;
-  color: #64748b;
+  color: var(--text-secondary);
   max-width: 700px;
   line-height: 1.5;
 }
@@ -36,15 +38,15 @@
 }
 
 .mock-chat-box {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-light);
 }
 
 .mock-chat-top {
-  background: #3498db;
+  background: var(--gradient-blue);
   color: white;
   padding: 15px 20px;
   display: flex;
@@ -61,6 +63,16 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  flex-shrink: 0;
+}
+
+.mock-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mock-user-info strong {
+  font-size: 0.95rem;
 }
 
 .status-dot {
@@ -72,7 +84,7 @@
 .mock-chat-body {
   height: 320px;
   padding: 20px;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -82,39 +94,48 @@
 .bubble {
   max-width: 85%;
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 0.9rem;
   line-height: 1.4;
 }
 
 .bubble.received {
-  background: white;
+  background: var(--bg-primary);
   align-self: flex-start;
-  color: #334155;
-  border: 1px solid #e2e8f0;
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
 }
 
 .bubble.sent {
-  background: #3498db;
+  background: var(--gradient-blue);
   color: white;
   align-self: flex-end;
 }
 
 .mock-chat-footer {
   padding: 15px 20px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #94a3b8;
+  color: var(--text-muted);
+  background: var(--bg-primary);
 }
 
 .mock-send-btn {
-  color: #3498db;
+  color: var(--primary-blue);
   background: none;
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.mock-send-btn:hover {
+  background: var(--bg-secondary);
+  transform: scale(1.1);
 }
 
 .chat-features-list {
@@ -125,10 +146,11 @@
 
 .feature-item {
   padding: 20px;
-  background: #ffffff;
-  border-left: 5px solid #3498db;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-  transition: transform 0.2s;
+  background: var(--bg-primary);
+  border-left: 5px solid var(--primary-blue);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .feature-item:hover {
@@ -137,19 +159,155 @@
 
 .feature-item h3 {
   margin: 0 0 8px 0;
-  color: #2980b9;
-  font-size: 1.2rem;
+  color: var(--primary-blue-dark);
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .feature-item p {
   margin: 0;
-  font-size: 0.95rem;
-  color: #64748b;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
+/* Tablet - 768px */
 @media (max-width: 968px) {
+  .chat-page-wrapper {
+    padding: 100px 16px 40px;
+    gap: 24px;
+  }
+
   .chat-main-content {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .chat-main-title {
+    font-size: 2rem;
+  }
+
+  .chat-description {
+    font-size: 1rem;
+  }
+
+  .mock-chat-body {
+    height: 280px;
+    padding: 16px;
+  }
+
+  .bubble {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+}
+
+/* Mobile - 480px */
+@media (max-width: 480px) {
+  .chat-page-wrapper {
+    padding: 90px 12px 30px;
+    gap: 20px;
+  }
+
+  .chat-header-section {
+    padding-bottom: 16px;
+    margin-bottom: 8px;
+  }
+
+  .chat-main-title {
+    font-size: 1.5rem;
+  }
+
+  .chat-description {
+    font-size: 0.9rem;
+  }
+
+  .mock-chat-top {
+    padding: 12px 16px;
+  }
+
+  .mock-user-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  .mock-user-info strong {
+    font-size: 0.9rem;
+  }
+
+  .status-dot {
+    font-size: 0.7rem;
+  }
+
+  .mock-chat-body {
+    height: 250px;
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .bubble {
+    max-width: 90%;
+    font-size: 0.8rem;
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+  }
+
+  .mock-chat-footer {
+    padding: 12px 16px;
+  }
+
+  .chat-features-list {
+    gap: 14px;
+  }
+
+  .feature-item {
+    padding: 16px;
+  }
+
+  .feature-item h3 {
+    font-size: 1rem;
+  }
+
+  .feature-item p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Small Mobile - 320px */
+@media (max-width: 320px) {
+  .chat-page-wrapper {
+    padding: 80px 8px 20px;
+    gap: 16px;
+  }
+
+  .chat-main-title {
+    font-size: 1.25rem;
+  }
+
+  .chat-description {
+    font-size: 0.8rem;
+  }
+
+  .mock-chat-body {
+    height: 220px;
+    padding: 12px;
+  }
+
+  .bubble {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+
+  .feature-item {
+    padding: 12px;
+  }
+
+  .feature-item h3 {
+    font-size: 0.9rem;
+  }
+
+  .feature-item p {
+    font-size: 0.8rem;
   }
 }
