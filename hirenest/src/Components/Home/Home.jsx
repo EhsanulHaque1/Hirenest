@@ -96,11 +96,6 @@ const Home = () => {
 
       <section className="middle-section">
         <div className="middle-container">
-          <div className="section-header">
-            <h2>How HireNest Works</h2>
-            <p>Discover the power of seamless hiring and freelancing</p>
-          </div>
-
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon"><FaBriefcase /></div>
