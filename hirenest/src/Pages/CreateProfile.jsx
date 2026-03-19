@@ -108,80 +108,158 @@ const CreateProfile = () => {
         Welcome {user.firstName}! Let's complete your {role === 'jobSeeker' ? 'seeker' : 'provider'} profile.
       </p>
 
-      <form onSubmit={handleSubmit} className="content-section" style={{ maxWidth: '600px', margin: '0 auto' }}>
-        <h2>{role === 'jobProvider' ? 'Upload NID Card Photo' : 'Upload Certification Photos & Select Job Type'}</h2>
-
-        {role === 'jobProvider' ? (
-          <>
-            <div className="input-group">
-              <label>NID Card Photos * (Front and Back - 2 images, JPG/PNG)</label>
-              <input type="file" accept="image/*" multiple onChange={handleNidChange} required />
-              {previewNid.length > 0 && (
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                  {previewNid.map((preview, idx) => (
-                    <div key={idx} style={{ textAlign: 'center' }}>
-                      <img src={preview} alt={`NID ${idx + 1}`} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e5e7eb' }} />
-                      <small>{idx === 0 ? 'Front' : 'Back'}</small>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="input-group">
-              <label>Certification Photos * (up to 5, JPG/PNG)</label>
-              <input type="file" multiple accept="image/*" onChange={handleCertChange} required />
-              {previewCerts.length > 0 && (
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
-                  {previewCerts.map((preview, idx) => (
-                    <div key={idx} style={{ textAlign: 'center' }}>
-                      <img src={preview} alt={`Cert ${idx + 1}`} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e5e7eb' }} />
-                      <small>Cert {idx + 1}</small>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="input-group">
-              <label>Job Field * </label>
-              <select value={jobField} onChange={(e) => setJobField(e.target.value)} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #e5e7eb', background: 'white', fontSize: '1rem' }}>
-                <option value="">Select your expertise</option>
-                {jobFields.map(field => (
-                  <option key={field} value={field}>{field}</option>
-                ))}
-              </select>
-            </div>
-          </>
-        )}
-
-        {message && (
-          <div style={{ 
-            padding: '15px', 
-            borderRadius: '12px', 
-            margin: '20px 0', 
-            textAlign: 'center',
-            background: messageType === 'success' ? '#d1fae5' : '#fee2e2',
-            color: messageType === 'success' ? '#065f46' : '#991b1b',
-            borderLeft: `4px solid ${messageType === 'success' ? '#10b981' : '#ef4444'}`
-          }}>
-            {message}
+      <div className="complaint-card-modern" style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <div className="complaint-header-modern">
+          <div className="complaint-icon-modern">
+            {role === 'jobProvider' ? '🏢' : '👤'}
           </div>
-        )}
+          <div>
+            <h2 style={{ margin: 0 }}>{role === 'jobProvider' ? 'Verify Your Identity' : 'Showcase Your Skills'}</h2>
+            <p className="complaint-subtitle">
+              {role === 'jobProvider' 
+                ? 'Upload your NID for verification' 
+                : 'Upload certifications to prove your expertise'}
+            </p>
+          </div>
+        </div>
 
-        <button 
-          type="submit" 
-          disabled={loading} 
-          className="btn-modern-primary"
-        >
-          {loading ? 'Uploading to Cloudinary...' : `Complete ${role} Profile`}
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="complaint-form-modern">
+          {role === 'jobProvider' ? (
+            <>
+              <div className="input-group">
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                  NID Card Photos * <span style={{ fontWeight: '400', color: 'var(--text-secondary)' }}>(Front and Back - 2 images)</span>
+                </label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  multiple 
+                  onChange={handleNidChange} 
+                  required 
+                  style={{
+                    padding: '12px',
+                    border: '2px solid var(--border-light)',
+                    borderRadius: 'var(--radius-md)',
+                    width: '100%',
+                    background: 'var(--bg-secondary)'
+                  }}
+                />
+                {previewNid.length > 0 && (
+                  <div style={{ display: 'flex', gap: '16px', marginTop: '16px', justifyContent: 'center' }}>
+                    {previewNid.map((preview, idx) => (
+                      <div key={idx} style={{ textAlign: 'center' }}>
+                        <img 
+                          src={preview} 
+                          alt={`NID ${idx + 1}`} 
+                          style={{ 
+                            width: '180px', 
+                            height: '120px', 
+                            objectFit: 'cover', 
+                            borderRadius: 'var(--radius-md)', 
+                            border: '2px solid var(--border-light)',
+                            boxShadow: 'var(--shadow-md)'
+                          }} 
+                        />
+                        <p style={{ marginTop: '8px', fontWeight: '600', color: 'var(--text-secondary)' }}>
+                          {idx === 0 ? '📄 Front' : '📄 Back'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="input-group">
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                  Certification Photos * <span style={{ fontWeight: '400', color: 'var(--text-secondary)' }}>(up to 5 images)</span>
+                </label>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleCertChange} 
+                  required 
+                  style={{
+                    padding: '12px',
+                    border: '2px solid var(--border-light)',
+                    borderRadius: 'var(--radius-md)',
+                    width: '100%',
+                    background: 'var(--bg-secondary)'
+                  }}
+                />
+                {previewCerts.length > 0 && (
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '16px', justifyContent: 'center' }}>
+                    {previewCerts.map((preview, idx) => (
+                      <div key={idx} style={{ textAlign: 'center' }}>
+                        <img 
+                          src={preview} 
+                          alt={`Cert ${idx + 1}`} 
+                          style={{ 
+                            width: '120px', 
+                            height: '120px', 
+                            objectFit: 'cover', 
+                            borderRadius: 'var(--radius-md)', 
+                            border: '2px solid var(--border-light)',
+                            boxShadow: 'var(--shadow-md)'
+                          }} 
+                        />
+                        <p style={{ marginTop: '6px', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                          Cert {idx + 1}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="input-group">
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                  Job Field *
+                </label>
+                <select 
+                  value={jobField} 
+                  onChange={(e) => setJobField(e.target.value)} 
+                  required 
+                  style={{ 
+                    width: '100%', 
+                    padding: '14px', 
+                    borderRadius: 'var(--radius-md)', 
+                    border: '2px solid var(--border-light)', 
+                    background: 'var(--bg-primary)', 
+                    fontSize: '1rem',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="">Select your expertise</option>
+                  {jobFields.map(field => (
+                    <option key={field} value={field}>{field}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          {message && (
+            <div className={messageType === 'success' ? 'success-message' : 'error-message'}>
+              {message}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="btn-modern-primary"
+            style={{ width: '100%', padding: '16px', fontSize: '1.1rem' }}
+          >
+            {loading ? '⏳ Uploading to Cloudinary...' : `✨ Complete ${role} Profile`}
+          </button>
+        </form>
+      </div>
 
     </div>
   );
 };
 
 export default CreateProfile;
-

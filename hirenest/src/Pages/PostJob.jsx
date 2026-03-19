@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PostJob.css";
+import "./Pages.css";
 
 function PostJob() {
   const navigate = useNavigate();
@@ -113,23 +113,28 @@ function PostJob() {
   if (!user) return <div className="page-container"><h1>Loading...</h1></div>;
 
   return (
-    <div className="pj-master-wrapper">
-      <section className="pj-hero">
-        <div className="pj-hero-inner">
-          <h1>Post a New Job</h1>
-          <p>
-            Find the perfect talent for your project. Define your requirements 
-            and receive proposals from qualified professionals.
-          </p>
-        </div>
-      </section>
+    <div className="page-container">
+      <h1>Post a New Job</h1>
+      <p className="intro-text">
+        Find the perfect talent for your project. Define your requirements 
+        and receive proposals from qualified professionals.
+      </p>
 
-      <div className="pj-main-body">
-        <div className="pj-benefits-box" style={{ maxWidth: '700px', margin: '0 auto 40px' }}>
-          <h3>Create New Job Post</h3>
-          <form onSubmit={handleSubmit}>
+      <div className="content-section" style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <div className="complaint-card-modern">
+          <div className="complaint-header-modern">
+            <div className="complaint-icon-modern">📋</div>
+            <div>
+              <h2 style={{ margin: 0 }}>Create New Job Post</h2>
+              <p className="complaint-subtitle">Fill in the details to find the best talent</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="complaint-form-modern">
             <div className="input-group">
-              <label>Job Title *</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                Job Title *
+              </label>
               <input
                 type="text"
                 name="title"
@@ -137,17 +142,37 @@ function PostJob() {
                 onChange={handleChange}
                 placeholder="e.g., Need a React Developer for E-commerce Site"
                 required
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '2px solid var(--border-light)',
+                  fontSize: '1rem',
+                  background: 'var(--bg-secondary)',
+                  transition: 'all 0.3s ease'
+                }}
               />
             </div>
 
             <div className="input-group">
-              <label>Job Field *</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                Job Field *
+              </label>
               <select
                 name="jobField"
                 value={formData.jobField}
                 onChange={handleChange}
                 required
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #e5e7eb', background: 'white', fontSize: '1rem' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '14px', 
+                  borderRadius: 'var(--radius-md)', 
+                  border: '2px solid var(--border-light)', 
+                  background: 'var(--bg-primary)', 
+                  fontSize: '1rem',
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer'
+                }}
               >
                 <option value="">Select job field</option>
                 {jobFields.map(field => (
@@ -157,7 +182,9 @@ function PostJob() {
             </div>
 
             <div className="input-group">
-              <label>Budget *</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                Budget *
+              </label>
               <input
                 type="text"
                 name="budget"
@@ -165,11 +192,21 @@ function PostJob() {
                 onChange={handleChange}
                 placeholder="e.g., $500 - $1000 or Fixed Price"
                 required
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '2px solid var(--border-light)',
+                  fontSize: '1rem',
+                  background: 'var(--bg-secondary)'
+                }}
               />
             </div>
 
             <div className="input-group">
-              <label>Job Description *</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                Job Description *
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -177,20 +214,20 @@ function PostJob() {
                 placeholder="Describe the job requirements, responsibilities, and expected deliverables..."
                 rows="5"
                 required
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #e5e7eb', fontSize: '1rem', resize: 'vertical' }}
+                style={{ 
+                  width: '100%', 
+                  padding: '14px', 
+                  borderRadius: 'var(--radius-md)', 
+                  border: '2px solid var(--border-light)', 
+                  fontSize: '1rem', 
+                  resize: 'vertical',
+                  background: 'var(--bg-secondary)'
+                }}
               />
             </div>
 
             {message && (
-              <div style={{
-                padding: '15px',
-                borderRadius: '12px',
-                marginBottom: '20px',
-                textAlign: 'center',
-                background: messageType === 'success' ? '#d1fae5' : '#fee2e2',
-                color: messageType === 'success' ? '#065f46' : '#991b1b',
-                borderLeft: `4px solid ${messageType === 'success' ? '#10b981' : '#ef4444'}`
-              }}>
+              <div className={messageType === 'success' ? 'success-message' : 'error-message'}>
                 {message}
               </div>
             )}
@@ -199,61 +236,51 @@ function PostJob() {
               type="submit"
               disabled={loading}
               className="btn-modern-primary"
-              style={{ width: '100%' }}
+              style={{ width: '100%', padding: '16px', fontSize: '1.1rem' }}
             >
-              {loading ? 'Posting Job...' : 'Post Job'}
+              {loading ? '⏳ Posting Job...' : '✨ Post Job'}
             </button>
           </form>
         </div>
-
-        {myJobs.length > 0 && (
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <h3 style={{ marginBottom: '20px' }}>My Posted Jobs</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              {myJobs.map(job => (
-                <div key={job._id} style={{
-                  padding: '20px',
-                  borderRadius: '12px',
-                  border: '1px solid #e5e7eb',
-                  background: 'white'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                    <div>
-                      <h4 style={{ margin: '0 0 8px 0' }}>{job.title}</h4>
-                      <p style={{ margin: '0 0 8px 0', color: '#6b7280' }}>
-                        <strong>Field:</strong> {job.jobField} | <strong>Budget:</strong> {job.budget}
-                      </p>
-                      <p style={{ margin: '0', color: '#6b7280', fontSize: '0.9rem' }}>
-                        Status: <span style={{
-                          color: job.status === 'open' ? '#10b981' : '#ef4444',
-                          fontWeight: '600'
-                        }}>{job.status.toUpperCase()}</span> | 
-                        Applicants: {job.applicants.length}
-                      </p>
-                    </div>
-                    {job.status === 'open' && (
-                      <button
-                        onClick={() => handleCloseJob(job._id)}
-                        style={{
-                          padding: '8px 16px',
-                          background: '#fee2e2',
-                          color: '#991b1b',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '500'
-                        }}
-                      >
-                        Close Job
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+
+      {myJobs.length > 0 && (
+        <div className="content-section" style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <h2>My Posted Jobs ({myJobs.length})</h2>
+          <div style={{ display: 'grid', gap: '20px' }}>
+            {myJobs.map(job => (
+              <div key={job._id} className="feature-card" style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: '0 0 12px 0', fontSize: '1.25rem' }}>{job.title}</h3>
+                    <p style={{ margin: '0 0 8px 0', color: 'var(--text-secondary)' }}>
+                      <span style={{ fontWeight: '600' }}>Field:</span> {job.jobField} | 
+                      <span style={{ fontWeight: '600', marginLeft: '8px' }}>Budget:</span> {job.budget}
+                    </p>
+                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                      <span style={{ fontWeight: '600' }}>Status:</span>{' '}
+                      <span style={{
+                        color: job.status === 'open' ? 'var(--primary-green)' : '#ef4444',
+                        fontWeight: '600'
+                      }}>{job.status.toUpperCase()}</span>{' '}| 
+                      <span style={{ fontWeight: '600', marginLeft: '8px' }}>Applicants:</span> {job.applicants.length}
+                    </p>
+                  </div>
+                  {job.status === 'open' && (
+                    <button
+                      onClick={() => handleCloseJob(job._id)}
+                      className="btn-delete-small"
+                      style={{ padding: '10px 20px' }}
+                    >
+                      Close Job
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

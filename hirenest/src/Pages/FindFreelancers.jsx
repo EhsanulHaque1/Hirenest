@@ -73,19 +73,15 @@ function FindFreelancers() {
         onClick={() => setZoomImage(null)}
       >
         <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%', cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
-          <img src={zoomImage} alt="Zoomed" style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '8px' }} />
+          <img src={zoomImage} alt="Zoomed" style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: 'var(--radius-md)' }} />
           <button 
             onClick={() => setZoomImage(null)}
+            className="btn-modern-primary"
             style={{
               position: 'absolute',
-              top: '-40px',
+              top: '-50px',
               right: '0',
-              padding: '10px 20px',
-              background: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600'
+              padding: '12px 24px'
             }}
           >
             ✕ Close
@@ -103,26 +99,29 @@ function FindFreelancers() {
       </p>
 
       {!canChat && (
-        <div style={{ 
-          padding: '15px', 
-          background: '#fef3c7', 
-          borderRadius: '8px', 
-          marginBottom: '20px',
-          color: '#92400e'
+        <div className="feature-card" style={{ 
+          padding: '20px', 
+          background: 'var(--gradient-primary)', 
+          borderRadius: 'var(--radius-lg)', 
+          marginBottom: '32px',
+          color: 'white',
+          textAlign: 'center',
+          maxWidth: '600px',
+          margin: '0 auto 32px'
         }}>
-          💡 Only job providers can chat with freelancers. Sign up as a job provider to connect with talent.
+          <p style={{ margin: 0, fontSize: '1.1rem' }}>💡 Only job providers can chat with freelancers. Sign up as a job provider to connect with talent.</p>
         </div>
       )}
 
       <div className="content-section">
         <h2>Filter by Field</h2>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '30px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '32px', justifyContent: 'center' }}>
           {jobFields.map(field => (
             <button
               key={field}
               onClick={() => setSelectedField(field)}
               className={selectedField === field ? 'btn-modern-primary' : 'btn-modern-secondary'}
-              style={selectedField === field ? {} : { padding: '10px 20px', borderRadius: '20px' }}
+              style={selectedField === field ? { padding: '12px 24px' } : { padding: '12px 24px', borderRadius: 'var(--radius-full)' }}
             >
               {field}
             </button>
@@ -130,69 +129,69 @@ function FindFreelancers() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading freelancers...</div>
+          <div className="feature-card" style={{ textAlign: 'center', padding: '48px' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⏳</div>
+            <p style={{ color: 'var(--text-secondary)' }}>Loading freelancers...</p>
+          </div>
         ) : filteredSeekers.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
+          <div className="feature-card" style={{ textAlign: 'center', padding: '48px' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🔍</div>
             <h3>No freelancers found</h3>
-            <p>Check back later for new talent in your field.</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Check back later for new talent in your field.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+          <div className="features-grid">
             {filteredSeekers.map(seeker => (
-              <div key={seeker._id} style={{
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid #e5e7eb',
-                background: 'white',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+              <div key={seeker._id} className="feature-card" style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
                   <div style={{
-                    width: '60px',
-                    height: '60px',
+                    width: '70px',
+                    height: '70px',
                     borderRadius: '50%',
-                    background: '#e5e7eb',
+                    background: 'var(--gradient-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '24px',
+                    fontSize: '28px',
                     fontWeight: 'bold',
-                    color: '#6b7280'
+                    color: 'white',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
                   }}>
                     {seeker.firstName?.charAt(0)}{seeker.lastName?.charAt(0)}
                   </div>
-                  <div style={{ marginLeft: '15px' }}>
-                    <h3 style={{ margin: '0 0 5px 0' }}>{seeker.firstName} {seeker.lastName}</h3>
-                    <p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>@{seeker.username}</p>
+                  <div style={{ marginLeft: '16px' }}>
+                    <h3 style={{ margin: '0 0 4px 0', fontSize: '1.25rem' }}>{seeker.firstName} {seeker.lastName}</h3>
+                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem' }}>@{seeker.username}</p>
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '15px' }}>
+                <div style={{ marginBottom: '16px' }}>
                   <span style={{
                     display: 'inline-block',
-                    padding: '4px 12px',
-                    background: '#dbeafe',
-                    color: '#1e40af',
-                    borderRadius: '20px',
-                    fontSize: '0.85rem',
-                    fontWeight: '500'
+                    padding: '6px 16px',
+                    background: 'var(--gradient-primary)',
+                    color: 'white',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
                   }}>
                     {seeker.jobField}
                   </span>
                 </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                  <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#6b7280' }}>
-                    <strong>Jobs Completed:</strong> {seeker.jobsCompleted || 0}
+                <div style={{ marginBottom: '20px' }}>
+                  <p style={{ margin: '0', fontSize: '1rem', color: 'var(--text-secondary)' }}>
+                    <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>Jobs Completed:</span> {seeker.jobsCompleted || 0}
                   </p>
                 </div>
 
                 {seeker.certificationImages && seeker.certificationImages.length > 0 && (
-                  <div style={{ marginBottom: '15px' }}>
-                    <p style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#6b7280' }}>
+                  <div style={{ marginBottom: '20px' }}>
+                    <p style={{ margin: '0 0 12px 0', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
                       <strong>Qualifications:</strong>
                     </p>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       {seeker.certificationImages.slice(0, 3).map((img, idx) => (
                         <img 
                           key={idx}
@@ -200,26 +199,28 @@ function FindFreelancers() {
                           alt={`Cert ${idx + 1}`}
                           onClick={() => setZoomImage(img)}
                           style={{
-                            width: '60px',
-                            height: '60px',
+                            width: '70px',
+                            height: '70px',
                             objectFit: 'cover',
-                            borderRadius: '8px',
-                            border: '1px solid #e5e7eb',
-                            cursor: 'pointer'
+                            borderRadius: 'var(--radius-md)',
+                            border: '2px solid var(--border-light)',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s'
                           }}
                         />
                       ))}
                       {seeker.certificationImages.length > 3 && (
                         <div style={{
-                          width: '60px',
-                          height: '60px',
+                          width: '70px',
+                          height: '70px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          background: '#f3f4f6',
-                          borderRadius: '8px',
-                          fontSize: '0.8rem',
-                          color: '#6b7280'
+                          background: 'var(--bg-tertiary)',
+                          borderRadius: 'var(--radius-md)',
+                          fontSize: '0.9rem',
+                          color: 'var(--text-secondary)',
+                          fontWeight: '600'
                         }}>
                           +{seeker.certificationImages.length - 3}
                         </div>
@@ -232,7 +233,7 @@ function FindFreelancers() {
                   <button
                     onClick={() => handleChat(seeker)}
                     className="btn-modern-primary"
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', padding: '14px' }}
                   >
                     💬 Chat with Freelancer
                   </button>
@@ -240,7 +241,7 @@ function FindFreelancers() {
                   <button
                     disabled
                     className="btn-modern-secondary"
-                    style={{ width: '100%', cursor: 'not-allowed' }}
+                    style={{ width: '100%', padding: '14px', cursor: 'not-allowed' }}
                   >
                     🔒 Chat available for job providers
                   </button>
