@@ -18,8 +18,8 @@ const userSchema = new mongoose.Schema(
     profileComplete: { type: Boolean, default: false },
     verificationToken: { type: String },
     verificationTokenExpires: { type: Date },
-    nidImages: [{ type: String }], // Cloudinary URLs for jobProvider (front and back)
-    certificationImages: [{ type: String }], // Cloudinary URLs for jobSeeker
+    nidImages: [{ type: String }], 
+    certificationImages: [{ type: String }], 
     jobField: { 
       type: String, 
       enum: ['Web Development', 'App Development', 'UI/UX Design', 'Marketing'],

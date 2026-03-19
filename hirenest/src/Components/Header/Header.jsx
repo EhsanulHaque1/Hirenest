@@ -12,6 +12,7 @@ const Header = ({
   setUser,
   isHome,
   className,
+  loading = false,
 }) => {
   const API_BASE = import.meta.env.VITE_API_URL || "/api";
   const navigate = useNavigate();
@@ -152,21 +153,30 @@ const Header = ({
         <nav>
           <ul>
             <li><Link to="/">Home</Link></li>
-            <li>{!user ? (
+            {user && (
+              <li><Link to="/dashboard">Dashboard</Link></li>
+            )}
+            <li>{loading ? (
+              <span style={{ cursor: "default", color: "#6b7280" }}>Explore Jobs</span>
+            ) : !user ? (
               <span onClick={() => setShowSignUp(true)} style={{ cursor: "pointer" }}>Explore Jobs</span>
             ) : user.role === "admin" ? (
               <Link to="/admin-jobs">Available Jobs</Link>
             ) : (
               <Link to="/browse-apply">Explore Jobs</Link>
             )}</li>
-            <li>{!user ? (
+            <li>{loading ? (
+              <span style={{ cursor: "default", color: "#6b7280" }}>Admin Panel</span>
+            ) : !user ? (
               <span onClick={() => setShowSignUp(true)} style={{ cursor: "pointer" }}>Admin Panel</span>
             ) : user.role === "admin" ? (
               <Link to="/admin-page">Admin Page</Link>
             ) : (
               <Link to="/admin-panel">Admin Panel</Link>
             )}</li>
-            {user ? (
+            {loading ? (
+              <li className="nav-user">Loading...</li>
+            ) : user ? (
               <>
                 <li className="nav-user">Hi, {user.firstName || user.username}</li>
                 <li>

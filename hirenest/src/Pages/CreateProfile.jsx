@@ -13,7 +13,7 @@ const CreateProfile = () => {
   const [previewCerts, setPreviewCerts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+  const [messageType, setMessageType] = useState(''); 
 
   const API_BASE = import.meta.env.VITE_API_URL || "/api";
   const token = localStorage.getItem('token');

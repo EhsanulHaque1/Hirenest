@@ -1,28 +1,64 @@
 import { useState, useEffect } from "react";
 import Header from "../Header/Header";
 
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
+
 function Layout({ children }) {
   const [showSignIn, setShowSignIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check for existing user session on mount
+  // Fetch user profile from database instead of localStorage
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("hirenest_user");
-    
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else if (token) {
-      // For admin token, restore admin user
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // For admin token, use hardcoded admin user
       if (token === "admin-token") {
         setUser({
           username: "admin",
           firstName: "Admin",
           role: "admin",
+          profileComplete: true
         });
+        setLoading(false);
+        return;
       }
-    }
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const userData = await res.json();
+          setUser(userData);
+          // Also update localStorage for other components that might need it
+          localStorage.setItem('hirenest_user', JSON.stringify(userData));
+        } else {
+          // Token invalid, clear storage
+          localStorage.removeItem("token");
+          localStorage.removeItem("hirenest_user");
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserProfile();
   }, []);
 
   return (
@@ -35,6 +71,7 @@ function Layout({ children }) {
         user={user}
         setUser={setUser}
         isHome={false}
+        loading={loading}
       />
       <div className="layout-content">
         {children}

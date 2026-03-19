@@ -27,19 +27,16 @@ function PostJob() {
       const parsedUser = JSON.parse(savedUser);
       setUser(parsedUser);
       
-      // Check if profile is complete
       if (!parsedUser.profileComplete) {
         navigate('/create-profile');
       }
       
-      // Only jobProviders can post jobs
       if (parsedUser.role !== 'jobProvider') {
         navigate('/');
       }
     }
     if (!token) navigate('/');
     
-    // Fetch my posted jobs
     fetchMyJobs();
   }, [navigate, token]);
 

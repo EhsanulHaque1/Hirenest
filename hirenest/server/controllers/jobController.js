@@ -1,7 +1,6 @@
 import Job from '../models/Job.js';
 import User from '../models/User.js';
 
-// Create a new job (jobProvider only)
 export const createJob = async (req, res) => {
   try {
     const { title, description, budget, jobField } = req.body;
@@ -27,15 +26,12 @@ export const createJob = async (req, res) => {
   }
 };
 
-// Get all jobs (with optional filtering)
 export const getJobs = async (req, res) => {
   try {
     const { jobField, includeAll } = req.query;
     
-    // If includeAll is true, get all jobs (for admin), otherwise only open jobs
     let query = includeAll === 'true' ? {} : { status: 'open' };
     
-    // If jobField is provided, filter by it
     if (jobField && jobField !== 'All') {
       query.jobField = jobField;
     }
@@ -51,7 +47,6 @@ export const getJobs = async (req, res) => {
   }
 };
 
-// Get jobs for job seekers (only matching their field)
 export const getMatchingJobs = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -74,13 +69,11 @@ export const getMatchingJobs = async (req, res) => {
   }
 };
 
-// Apply for a job (jobSeeker only - field must match)
 export const applyForJob = async (req, res) => {
   try {
     const { jobId, proposal } = req.body;
     const userId = req.user.id;
 
-    // Get user to check their role and jobField
     const user = await User.findById(userId);
     
     if (user.role !== 'jobSeeker') {
@@ -101,12 +94,10 @@ export const applyForJob = async (req, res) => {
       return res.status(400).json({ error: 'This job is no longer accepting applications' });
     }
 
-    // Check if job field matches user's job field
     if (job.jobField !== user.jobField) {
       return res.status(400).json({ error: `You can only apply for ${user.jobField} jobs` });
     }
 
-    // Check if already applied
     const alreadyApplied = job.applicants.some(
       applicant => applicant.user.toString() === userId
     );
@@ -115,11 +106,9 @@ export const applyForJob = async (req, res) => {
       return res.status(400).json({ error: 'You have already applied for this job' });
     }
 
-    // Add applicant
     job.applicants.push({ user: userId, proposal });
     await job.save();
 
-    // Also add to user's appliedJobs
     user.appliedJobs.push(jobId);
     await user.save();
 
@@ -130,7 +119,6 @@ export const applyForJob = async (req, res) => {
   }
 };
 
-// Get jobs posted by current user (jobProvider)
 export const getMyPostedJobs = async (req, res) => {
   try {
     const jobs = await Job.find({ postedBy: req.user.id })
@@ -144,7 +132,6 @@ export const getMyPostedJobs = async (req, res) => {
   }
 };
 
-// Get jobs the user has applied to (jobSeeker)
 export const getMyApplications = async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
@@ -160,7 +147,7 @@ export const getMyApplications = async (req, res) => {
   }
 };
 
-// Close a job (jobProvider only)
+
 export const closeJob = async (req, res) => {
   try {
     const { jobId } = req.params;
@@ -181,7 +168,6 @@ export const closeJob = async (req, res) => {
   }
 };
 
-// Delete a job (admin only)
 export const deleteJob = async (req, res) => {
   try {
     const { jobId } = req.params;
@@ -197,6 +183,38 @@ export const deleteJob = async (req, res) => {
     res.json({ message: 'Job deleted successfully' });
   } catch (error) {
     console.error('Delete job error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const getAllJobSeekers = async (req, res) => {
+  try {
+    const jobSeekers = await User.find({ role: 'jobSeeker', profileComplete: true })
+      .select('firstName lastName username email jobField certificationImages');
+
+    const jobSeekersWithStats = await Promise.all(
+      jobSeekers.map(async (seeker) => {
+        const completedJobs = await Job.countDocuments({
+          'applicants.user': seeker._id,
+          status: 'closed'
+        });
+        
+        return {
+          _id: seeker._id,
+          firstName: seeker.firstName,
+          lastName: seeker.lastName,
+          username: seeker.username,
+          email: seeker.email,
+          jobField: seeker.jobField,
+          certificationImages: seeker.certificationImages,
+          jobsCompleted: completedJobs
+        };
+      })
+    );
+
+    res.json(jobSeekersWithStats);
+  } catch (error) {
+    console.error('Get job seekers error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };

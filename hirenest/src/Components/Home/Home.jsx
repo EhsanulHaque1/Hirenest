@@ -1,30 +1,65 @@
 import { useState, useEffect } from "react";
 import Header from "../Header/Header";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaBriefcase, FaSearch, FaCreditCard, FaComments, FaStar, FaRobot } from "react-icons/fa";
 
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
+
 const Home = () => {
+  const navigate = useNavigate();
   const [showSignIn, setShowSignIn] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check for existing user session on mount
+  // Fetch user profile from database instead of localStorage
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("hirenest_user");
-    
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else if (token) {
-      // For admin token, restore admin user
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // For admin token, use hardcoded admin user
       if (token === "admin-token") {
         setUser({
           username: "admin",
           firstName: "Admin",
           role: "admin",
+          profileComplete: true
         });
+        setLoading(false);
+        return;
       }
-    }
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const userData = await res.json();
+          setUser(userData);
+          localStorage.setItem('hirenest_user', JSON.stringify(userData));
+        } else {
+          localStorage.removeItem("token");
+          localStorage.removeItem("hirenest_user");
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserProfile();
   }, []);
 
   return (
@@ -37,6 +72,7 @@ const Home = () => {
           setShowSignUp={setShowSignUp}
           user={user}
           setUser={setUser}
+          loading={loading}
         />
 
         <div className="hero-content">
@@ -127,7 +163,7 @@ const Home = () => {
               <button className="btn-primary" onClick={() => setShowSignUp(true)}>
                 I'm a Job Seeker
               </button>
-              <button className="btn-secondary" onClick={() => setShowSignUp(true)}>
+              <button className="btn-secondary" onClick={() => navigate('/find-freelancers')}>
                 I'm Hiring
               </button>
             </div>

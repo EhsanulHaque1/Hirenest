@@ -13,7 +13,6 @@ export const completeProfile = async (req, res) => {
     const { jobField } = req.body;
     let updateData = { profileComplete: true };
 
-    // jobProvider: two nidImages (front and back)
     const nidFiles = req.files && req.files['nidImages'];
     if (nidFiles && nidFiles.length > 0) {
       const nidUrls = await Promise.all(nidFiles.map(file => uploadToCloudinary(file)));
@@ -21,7 +20,6 @@ export const completeProfile = async (req, res) => {
       updateData.nidImages = nidUrls;
     }
 
-    // jobSeeker: cert array + jobField
     const certFiles = req.files && req.files['certificationImages'];
     if (certFiles && certFiles.length > 0) {
       const certUrls = await Promise.all(certFiles.map(file => uploadToCloudinary(file)));

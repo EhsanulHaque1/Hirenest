@@ -1,4 +1,3 @@
-/* global process */
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
@@ -11,30 +10,26 @@ import aiRoutes from "./routes/aiRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import verifyToken from "./middleware/auth.js";
 
-dotenv.config(); // Load environment variables from .env
+dotenv.config(); 
 
 const app = express();
-const PORT = process.env.PORT || 5003; // use env port if available
+const PORT = process.env.PORT || 5003; 
 
 app.use(cors());
 app.use(express.json());
 app.use("/api/ai", aiRoutes);
 app.use("/api/complaints", complaintRoutes);
 
-// Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Connect to MongoDB
 connectDB();
 
-// Secret key for JWT
 const JWT_SECRET =
   process.env.JWT_SECRET ||
   "your-super-secret-jwt-key-change-in-production-12345";
 
-// ----------------- REGISTER -----------------
 app.post("/api/auth/register", async (req, res) => {
   const { firstName, lastName, email, username, password, role } = req.body;
 
@@ -72,11 +67,8 @@ app.post("/api/auth/register", async (req, res) => {
       role: user.role,
     };
 
-    // Optional: generate token on registration
     const token = jwt.sign(safeUser, JWT_SECRET, { expiresIn: "1h" });
 
-    // Optionally send verification email
-    // await sendVerificationEmail(user.email, token);
 
     return res.status(201).json({ user: safeUser, token });
   } catch (error) {
@@ -85,7 +77,6 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
-// ----------------- LOGIN -----------------
 app.post("/api/auth/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -113,7 +104,6 @@ app.post("/api/auth/login", async (req, res) => {
       role: user.role,
     };
 
-    // Generate JWT
     const token = jwt.sign(safeUser, JWT_SECRET, { expiresIn: "1h" });
 
     return res.json({ user: safeUser, token });
@@ -123,13 +113,10 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// ----------------- PROTECTED ROUTE EXAMPLE -----------------
 app.get("/api/protected", verifyToken, (req, res) => {
-  // verifyToken adds req.user
   res.json({ message: "Access granted", user: req.user });
 });
 
-// ----------------- START SERVER -----------------
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`),
 );

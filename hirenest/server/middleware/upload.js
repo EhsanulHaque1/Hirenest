@@ -2,8 +2,6 @@ import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import streamifier from 'streamifier';
 
-// Parse CLOUDINARY_URL to get individual credentials
-// Format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
 const cloudinaryUrl = process.env.CLOUDINARY_URL;
 if (cloudinaryUrl) {
   const urlMatch = cloudinaryUrl.match(/cloudinary:\/\/([^:]+):([^@]+)@(.+)/);
