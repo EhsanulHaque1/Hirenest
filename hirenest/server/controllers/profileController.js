@@ -7,11 +7,26 @@ export const completeProfile = async (req, res) => {
       role: req.user.role,
       hasNidImages: req.files && req.files['nidImages'] ? req.files['nidImages'].length : 0,
       hasCerts: req.files && req.files['certificationImages'] ? req.files['certificationImages'].length : 0,
+      hasProfilePicture: req.files && req.files['profilePicture'] ? 1 : 0,
     });
 
     const userId = req.user.id;
-    const { jobField } = req.body;
+    const { jobField, firstName, lastName } = req.body;
     let updateData = { profileComplete: true };
+
+    if (firstName) {
+      updateData.firstName = firstName;
+    }
+    if (lastName) {
+      updateData.lastName = lastName;
+    }
+
+    const profilePicFile = req.files && req.files['profilePicture'];
+    if (profilePicFile && profilePicFile.length > 0) {
+      const profilePicUrl = await uploadToCloudinary(profilePicFile[0]);
+      console.log('✅ Profile picture uploaded:', profilePicUrl);
+      updateData.profilePicture = profilePicUrl;
+    }
 
     const nidFiles = req.files && req.files['nidImages'];
     if (nidFiles && nidFiles.length > 0) {

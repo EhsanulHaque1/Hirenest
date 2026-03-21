@@ -20,12 +20,21 @@ const userSchema = new mongoose.Schema(
     verificationTokenExpires: { type: Date },
     nidImages: [{ type: String }], 
     certificationImages: [{ type: String }], 
+    profilePicture: { type: String },
     jobField: { 
       type: String, 
       enum: ['Web Development', 'App Development', 'UI/UX Design', 'Marketing'],
       required: false 
     },
-    appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }]
+    appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }],
+    ratings: [{
+      jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job' },
+      rating: { type: Number, min: 1, max: 5 },
+      comment: { type: String },
+      ratedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      createdAt: { type: Date, default: Date.now }
+    }],
+    averageRating: { type: Number, default: 0 }
   },
   { timestamps: true },
 );

@@ -14,25 +14,44 @@ function BrowseApply() {
   const [proposal, setProposal] = useState('');
   const [applicationMessage, setApplicationMessage] = useState('');
   const [applicationType, setApplicationType] = useState('');
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   const API_BASE = import.meta.env.VITE_API_URL || "/api";
-  const token = localStorage.getItem('token');
 
   const jobFields = ['All', 'Web Development', 'App Development', 'UI/UX Design', 'Marketing'];
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('hirenest_user');
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
+    const fetchUserAndJobs = async () => {
+      const savedToken = localStorage.getItem('token');
+      setToken(savedToken);
       
-      if (parsedUser.role === 'jobSeeker' && !parsedUser.profileComplete) {
-        navigate('/create-profile');
+      if (!savedToken) {
+        setLoading(false);
+        return;
       }
-    }
+      
+      try {
+        const userRes = await fetch(`${API_BASE}/auth/profile`, {
+          headers: { 'Authorization': `Bearer ${savedToken}` }
+        });
+        
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          setUser(userData);
+          
+          if (userData.role === 'jobSeeker' && !userData.profileComplete) {
+            navigate('/create-profile');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+      
+      fetchJobs();
+    };
     
-    fetchJobs();
-  }, [navigate, token]);
+    fetchUserAndJobs();
+  }, [navigate]);
 
   const fetchJobs = async () => {
     try {
@@ -51,7 +70,7 @@ function BrowseApply() {
   };
 
   const canApplyToJob = (job) => {
-    return user.jobField && job.jobField === user.jobField;
+    return user && user.jobField && job.jobField === user.jobField;
   };
 
   const handleFieldFilter = (field) => {
