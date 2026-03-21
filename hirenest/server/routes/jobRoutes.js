@@ -8,7 +8,9 @@ import {
   getMyApplications,
   closeJob,
   deleteJob,
-  getAllJobSeekers
+  getAllJobSeekers,
+  acceptApplicant,
+  rateJobSeeker
 } from "../controllers/jobController.js";
 import verifyToken from "../middleware/auth.js";
 
@@ -29,6 +31,10 @@ router.get('/my-applications', verifyToken, getMyApplications);
 router.get('/job-seekers', getAllJobSeekers);
 
 router.patch('/:jobId/close', verifyToken, closeJob);
+
+router.post('/accept-applicant', verifyToken, acceptApplicant);
+
+router.post('/rate-seeker', verifyToken, rateJobSeeker);
 
 router.delete('/:jobId', deleteJob);
 

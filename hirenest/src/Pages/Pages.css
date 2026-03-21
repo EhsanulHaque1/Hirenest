@@ -35,12 +35,12 @@ button:active,
   --primary-green: #10b981;
   --primary-green-dark: #059669;
   --primary-green-light: #34d399;
-  
+
   /* Secondary Colors */
   --primary-blue: #3b82f6;
   --primary-blue-dark: #2563eb;
   --primary-blue-light: #60a5fa;
-  
+
   /* Neutral Colors */
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
@@ -48,22 +48,22 @@ button:active,
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --text-muted: #94a3b8;
-  
+
   /* Borders */
   --border-light: #e2e8f0;
   --border-medium: #cbd5e1;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15);
-  
+
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #10b981, #34d399);
   --gradient-blue: linear-gradient(135deg, #3b82f6, #60a5fa);
   --gradient-dark: linear-gradient(135deg, #1e293b, #334155);
-  
+
   /* Border Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -723,7 +723,7 @@ button:active,
   .admin-table-desktop {
     display: block;
   }
-  
+
   .users-card-list {
     display: none;
   }
@@ -734,7 +734,7 @@ button:active,
   .admin-table-desktop {
     display: none;
   }
-  
+
   .users-card-list {
     display: flex;
   }
@@ -973,36 +973,36 @@ button:active,
   .support-channels-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .admin-tabs {
     gap: 8px;
   }
-  
+
   .admin-tab {
     padding: 10px 16px;
     font-size: 0.9rem;
   }
-  
+
   .complaint-card-modern,
   .success-message-modern {
     padding: 24px;
     border-radius: var(--radius-lg);
   }
-  
+
   .complaint-header-modern {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .complaint-header-modern h2,
   .complaint-subtitle {
     text-align: center;
   }
-  
+
   .complaint-actions {
     flex-direction: column;
   }
-  
+
   .btn-modern-primary,
   .btn-modern-secondary {
     width: 100%;
@@ -2117,15 +2117,15 @@ button:active,
   .dashboard-job-card {
     padding: 36px;
   }
-  
+
   .post-job-card {
     padding: 48px;
   }
-  
+
   .dashboard-job-title {
     font-size: 1.5rem;
   }
-  
+
   .post-job-title {
     font-size: 1.85rem;
   }
@@ -2139,101 +2139,101 @@ button:active,
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .dashboard-header .btn-modern-primary {
     width: 100%;
     justify-content: center;
   }
-  
+
   .dashboard-job-card {
     padding: 20px;
     border-radius: var(--radius-lg);
   }
-  
+
   .dashboard-job-header {
     flex-direction: column;
     gap: 14px;
   }
-  
+
   .dashboard-job-info {
     width: 100%;
   }
-  
+
   .dashboard-job-title {
     font-size: 1.2rem;
   }
-  
+
   .dashboard-job-meta {
     font-size: 0.9rem;
     flex-direction: column;
     gap: 6px;
   }
-  
+
   .dashboard-job-status {
     align-self: flex-start;
   }
-  
+
   .dashboard-applicants-section {
     margin-top: 20px;
     padding-top: 20px;
   }
-  
+
   .dashboard-applicant-card {
     padding: 14px;
   }
-  
+
   .dashboard-applicant-header {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .dashboard-chat-btn {
     width: 100%;
     justify-content: center;
     padding: 12px 16px;
   }
-  
+
   .dashboard-empty-state {
     padding: 40px 16px;
   }
-  
+
   .dashboard-empty-icon {
     font-size: 3.5rem;
   }
-  
+
   .dashboard-empty-title {
     font-size: 1.25rem;
   }
-  
+
   /* Post Job */
   .post-job-card {
     padding: 24px;
     border-radius: var(--radius-lg);
   }
-  
+
   .post-job-header {
     flex-direction: column;
     text-align: center;
     gap: 16px;
     padding-bottom: 20px;
   }
-  
+
   .post-job-title,
   .post-job-subtitle {
     text-align: center;
   }
-  
+
   .post-job-input-group input,
   .post-job-input-group select,
   .post-job-input-group textarea {
     padding: 12px 14px;
     font-size: 0.95rem;
   }
-  
+
   .post-job-input-group textarea {
     min-height: 120px;
   }
-  
+
   .post-job-submit-btn {
     padding: 16px;
     font-size: 1rem;
@@ -2246,42 +2246,42 @@ button:active,
   .page-container {
     padding: 100px 12px 140px;
   }
-  
+
   .page-container h1 {
     font-size: 1.85rem;
   }
-  
+
   .intro-text {
     font-size: 0.95rem;
     margin-bottom: 32px;
   }
-  
+
   .content-section {
     margin: 24px 0;
   }
-  
+
   .content-section h2 {
     font-size: 1.35rem;
   }
-  
+
   .dashboard-job-card {
     padding: 16px;
   }
-  
+
   .dashboard-job-title {
     font-size: 1.1rem;
     margin-bottom: 10px;
   }
-  
+
   .dashboard-job-meta {
     font-size: 0.85rem;
   }
-  
+
   .dashboard-job-status {
     padding: 6px 14px;
     font-size: 0.75rem;
   }
-  
+
   .btn-delete-small {
     width: 100%;
     text-align: center;
@@ -2289,85 +2289,85 @@ button:active,
     padding: 12px;
     font-size: 0.85rem;
   }
-  
+
   .dashboard-applicants-title {
     font-size: 1rem;
   }
-  
+
   .dashboard-applicant-card {
     padding: 12px;
   }
-  
+
   .dashboard-proposal {
     padding: 12px;
   }
-  
+
   .dashboard-proposal-label {
     font-size: 0.8rem;
   }
-  
+
   .dashboard-proposal-text {
     font-size: 0.85rem;
   }
-  
+
   .dashboard-empty-state {
     padding: 32px 12px;
   }
-  
+
   .dashboard-empty-icon {
     font-size: 3rem;
   }
-  
+
   .dashboard-empty-title {
     font-size: 1.1rem;
   }
-  
+
   .dashboard-empty-text {
     font-size: 0.9rem;
   }
-  
+
   /* Post Job */
   .post-job-card {
     padding: 18px;
   }
-  
+
   .post-job-icon {
     width: 56px;
     height: 56px;
     font-size: 1.5rem;
   }
-  
+
   .post-job-title {
     font-size: 1.35rem;
   }
-  
+
   .post-job-form {
     gap: 18px;
   }
-  
+
   .post-job-input-group label {
     font-size: 0.9rem;
   }
-  
+
   .post-job-input-group input,
   .post-job-input-group select {
     padding: 10px 12px;
   }
-  
+
   .post-job-input-group textarea {
     padding: 10px 12px;
     min-height: 100px;
   }
-  
+
   .post-job-submit-btn {
     padding: 14px;
     font-size: 0.95rem;
   }
-  
+
   .post-job-listed-section h2 {
     font-size: 1.35rem;
   }
-  
+
   .success-message,
   .error-message {
     padding: 12px 14px;
@@ -2380,25 +2380,25 @@ button:active,
   .page-container {
     padding: 90px 8px 140px;
   }
-  
+
   .page-container h1 {
     font-size: 1.5rem;
   }
-  
+
   .content-section h2 {
     font-size: 1.15rem;
   }
-  
+
   .dashboard-job-card,
   .dashboard-applicant-card,
   .post-job-card {
     padding: 14px;
   }
-  
+
   .dashboard-job-title {
     font-size: 1rem;
   }
-  
+
   .dashboard-chat-btn {
     padding: 10px 12px;
     font-size: 0.8rem;
@@ -2836,6 +2836,182 @@ button:active,
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Applicant Actions (Chat + Accept buttons) */
+.applicant-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Accept Button */
+.btn-accept {
+  padding: 10px 20px;
+  background: var(--primary-green);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.btn-accept:hover {
+  background: #059669;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
+}
+
+/* Badge for accepted/rejected applicants */
+.badge-accepted {
+  display: inline-block;
+  background: #10b981;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.badge-rejected {
+  display: inline-block;
+  background: #ef4444;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.badge-pending {
+  display: inline-block;
+  background: #f59e0b;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.badge-completed {
+  display: inline-block;
+  background: #8b5cf6;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.application-status {
+  margin-left: auto;
+}
+
+/* Rating Section */
+.rating-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+}
+
+.rating-section h4 {
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.rating-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rating-input-group,
+.comment-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rating-input-group label,
+.comment-input-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.rating-input-group select {
+  padding: 10px 14px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.rating-input-group select:focus {
+  border-color: var(--primary-green);
+  outline: none;
+}
+
+.comment-input-group textarea {
+  padding: 10px 14px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  resize: vertical;
+  font-family: inherit;
+}
+
+.comment-input-group textarea:focus {
+  border-color: var(--primary-green);
+  outline: none;
+}
+
+.rating-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Rate Button */
+.btn-rate {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.btn-rate:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45);
+}
+
+/* Applicant Proposal */
+.applicant-proposal {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
 /* ==========================================

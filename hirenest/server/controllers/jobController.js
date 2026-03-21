@@ -134,13 +134,22 @@ export const getMyPostedJobs = async (req, res) => {
 
 export const getMyApplications = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id)
-      .populate({
-        path: 'appliedJobs',
-        populate: { path: 'postedBy', select: 'firstName lastName username' }
-      });
+    const user = await User.findById(req.user.id);
+    console.log('User appliedJobs:', user?.appliedJobs);
+    
+    if (!user || !user.appliedJobs || user.appliedJobs.length === 0) {
+      console.log('No applied jobs found for user');
+      return res.json([]);
+    }
 
-    res.json(user.appliedJobs || []);
+    const jobs = await Job.find({ 
+      _id: { $in: user.appliedJobs }
+    })
+    .populate('postedBy', 'firstName lastName username')
+    .populate('applicants.user', 'firstName lastName');
+
+    console.log('Found jobs:', jobs.length);
+    res.json(jobs || []);
   } catch (error) {
     console.error('Get my applications error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -190,13 +199,13 @@ export const deleteJob = async (req, res) => {
 export const getAllJobSeekers = async (req, res) => {
   try {
     const jobSeekers = await User.find({ role: 'jobSeeker', profileComplete: true })
-      .select('firstName lastName username email jobField certificationImages');
+      .select('firstName lastName username email jobField certificationImages profilePicture ratings averageRating');
 
     const jobSeekersWithStats = await Promise.all(
       jobSeekers.map(async (seeker) => {
         const completedJobs = await Job.countDocuments({
           'applicants.user': seeker._id,
-          status: 'closed'
+          status: 'completed'
         });
         
         return {
@@ -207,7 +216,10 @@ export const getAllJobSeekers = async (req, res) => {
           email: seeker.email,
           jobField: seeker.jobField,
           certificationImages: seeker.certificationImages,
-          jobsCompleted: completedJobs
+          profilePicture: seeker.profilePicture,
+          jobsCompleted: completedJobs,
+          ratings: seeker.ratings || [],
+          averageRating: seeker.averageRating || 0
         };
       })
     );
@@ -215,6 +227,121 @@ export const getAllJobSeekers = async (req, res) => {
     res.json(jobSeekersWithStats);
   } catch (error) {
     console.error('Get job seekers error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const acceptApplicant = async (req, res) => {
+  try {
+    const { jobId, applicantId } = req.body;
+    const userId = req.user.id;
+
+    const job = await Job.findOne({ _id: jobId, postedBy: userId });
+    
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found or unauthorized' });
+    }
+
+    if (job.status !== 'open') {
+      return res.status(400).json({ error: 'This job is not open for applications' });
+    }
+
+    const applicantExists = job.applicants.some(
+      app => app.user.toString() === applicantId
+    );
+
+    if (!applicantExists) {
+      return res.status(404).json({ error: 'Applicant not found for this job' });
+    }
+
+    job.applicants = job.applicants.map(app => {
+      if (app.user.toString() === applicantId) {
+        return { ...app.toObject(), status: 'accepted' };
+      }
+      return { ...app.toObject(), status: 'rejected' };
+    });
+
+    job.acceptedApplicant = applicantId;
+    await job.save();
+
+    res.json({ 
+      message: 'Applicant accepted successfully', 
+      job,
+      acceptedApplicantId: applicantId 
+    });
+  } catch (error) {
+    console.error('Accept applicant error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const rateJobSeeker = async (req, res) => {
+  try {
+    const { jobId, rating, comment } = req.body;
+    const userId = req.user.id;
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+
+    const job = await Job.findOne({ _id: jobId, postedBy: userId });
+    
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found or unauthorized' });
+    }
+
+    if (!job.acceptedApplicant) {
+      return res.status(400).json({ error: 'This job has no accepted applicant' });
+    }
+
+    if (job.status !== 'completed') {
+      job.status = 'completed';
+      job.completedAt = new Date();
+    }
+
+    const jobSeeker = await User.findById(job.acceptedApplicant);
+    
+    if (!jobSeeker) {
+      return res.status(404).json({ error: 'Job seeker not found' });
+    }
+
+    jobSeeker.ratings.push({
+      jobId: job._id,
+      rating,
+      comment: comment || '',
+      ratedBy: userId,
+      createdAt: new Date()
+    });
+
+    const totalRatings = jobSeeker.ratings.length;
+    const sumRatings = jobSeeker.ratings.reduce((sum, r) => sum + r.rating, 0);
+    jobSeeker.averageRating = Math.round((sumRatings / totalRatings) * 10) / 10;
+
+    await jobSeeker.save();
+
+    const applicantIndex = job.applicants.findIndex(
+      app => app.user.toString() === job.acceptedApplicant.toString()
+    );
+    if (applicantIndex !== -1) {
+      job.applicants[applicantIndex].rated = true;
+      job.applicants[applicantIndex].rating = rating;
+      job.applicants[applicantIndex].ratingComment = comment || '';
+    }
+
+    await job.save();
+
+    res.json({ 
+      message: 'Rating submitted successfully',
+      jobSeeker: {
+        _id: jobSeeker._id,
+        firstName: jobSeeker.firstName,
+        lastName: jobSeeker.lastName,
+        averageRating: jobSeeker.averageRating,
+        ratings: jobSeeker.ratings
+      }
+    });
+  } catch (error) {
+    console.error('Rate job seeker error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
