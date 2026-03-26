@@ -20,6 +20,7 @@ import aiRoutes from "./routes/aiRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 import verifyToken from "./middleware/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -52,6 +53,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/payments", paymentRoutes);
 
 /* Socket.io Authentication Middleware */
 io.use((socket, next) => {

@@ -14,6 +14,8 @@ const jobSchema = new mongoose.Schema(
     status: { type: String, enum: ['open', 'closed', 'completed'], default: 'open' },
     acceptedApplicant: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     completedAt: { type: Date },
+    paymentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Payment' },
+    transactionId: { type: String },
     applicants: [{
       user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       proposal: { type: String },

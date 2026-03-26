@@ -3,7 +3,7 @@ import User from '../models/User.js';
 
 export const createJob = async (req, res) => {
   try {
-    const { title, description, budget, jobField } = req.body;
+    const { title, description, budget, jobField, transactionId } = req.body;
     
     if (!title || !description || !budget || !jobField) {
       return res.status(400).json({ error: 'All fields are required' });
@@ -14,7 +14,9 @@ export const createJob = async (req, res) => {
       description,
       budget,
       jobField,
-      postedBy: req.user.id
+      postedBy: req.user.id,
+      status: 'open',
+      transactionId: transactionId || null
     });
 
     await job.save();

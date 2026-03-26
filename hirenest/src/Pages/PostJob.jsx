@@ -72,26 +72,32 @@ function PostJob() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/jobs`, {
+      // Initialize payment with SSLCommerz
+      const res = await fetch(`${API_BASE}/payments/initialize`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ jobData: formData })
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to post job');
+      console.log('Payment initialization response:', data);
+      
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.failedreason || 'Failed to initialize payment');
+      }
 
-      setMessage('Job posted successfully! 🎉');
+      // Redirect to SSLCommerz payment page
+      console.log('Redirecting to:', data.paymentUrl);
+      setMessage('Redirecting to payment gateway...');
       setMessageType('success');
-      setFormData({ title: '', description: '', budget: '', jobField: '' });
-      fetchMyJobs();
+      window.location.href = data.paymentUrl;
     } catch (error) {
+      console.error('Payment error:', error);
       setMessage(error.message);
       setMessageType('error');
-    } finally {
       setLoading(false);
     }
   };
@@ -182,6 +188,24 @@ function PostJob() {
               />
             </div>
 
+            <div style={{
+              background: 'var(--bg-secondary)',
+              padding: '16px',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: '20px',
+              border: '1px solid var(--border-color)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>Job Posting Fee:</span>
+                <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--primary-green)' }}>
+                  ৳100 BDT
+                </span>
+              </div>
+              <p style={{ margin: '8px 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                Payment will be processed securely via SSLCommerz
+              </p>
+            </div>
+
             {message && (
               <div className={messageType === 'success' ? 'success-message' : 'error-message'}>
                 {message}
@@ -193,7 +217,7 @@ function PostJob() {
               disabled={loading}
               className="btn-modern-primary post-job-submit-btn"
             >
-              {loading ? '⏳ Posting Job...' : '✨ Post Job'}
+              {loading ? '⏳ Redirecting to Payment...' : '💳 Pay ৳100 & Post Job'}
             </button>
           </form>
         </div>
