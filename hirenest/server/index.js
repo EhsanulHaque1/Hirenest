@@ -8,13 +8,18 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 import connectDB from "./connect.cjs";
 import User from "./models/User.js";
+import Message from "./models/Chat.js";
+import Conversation from "./models/Conversation.js";
 import { sendVerificationEmail } from "./utils/emailService.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 import verifyToken from "./middleware/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +35,15 @@ const PORT = process.env.PORT || 5004;
 app.use(cors());
 app.use(express.json());
 
+/* Create HTTP server with Socket.io */
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+  },
+});
+
 /* Connect Database */
 connectDB();
 
@@ -37,16 +51,148 @@ connectDB();
 app.use("/api/ai", aiRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/jobs", jobRoutes);
+app.use("/api/chat", chatRoutes);
 
-import multer from 'multer';
+/* Socket.io Authentication Middleware */
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) {
+    return next(new Error("Authentication error"));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.id;
+    socket.userRole = decoded.role;
+    next();
+  } catch (error) {
+    next(new Error("Authentication error"));
+  }
+});
+
+/* Socket.io Connection Handler */
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.userId}`);
+
+  // Join user's personal room
+  socket.join(socket.userId);
+
+  // Handle joining a chat room with another user
+  socket.on("join_chat", (otherUserId) => {
+    const roomId = [socket.userId, otherUserId].sort().join("_");
+    socket.join(roomId);
+    console.log(`User ${socket.userId} joined room ${roomId}`);
+  });
+
+  // Handle sending messages
+  socket.on("send_message", async (data) => {
+    try {
+      const { receiverId, content } = data;
+
+      // Create message in database
+      const message = new Message({
+        senderId: socket.userId,
+        receiverId,
+        content,
+      });
+      await message.save();
+
+      // Update conversation
+      const conversation = await Conversation.findOrCreateConversation(
+        socket.userId,
+        receiverId,
+      );
+      conversation.lastMessage = message._id;
+      conversation.lastMessageAt = new Date();
+      await conversation.incrementUnread(receiverId);
+
+      // Populate sender info
+      const populatedMessage = await Message.findById(message._id)
+        .populate("senderId", "firstName lastName username profilePicture")
+        .populate("receiverId", "firstName lastName username profilePicture");
+
+      // Emit to both users
+      const roomId = [socket.userId, receiverId].sort().join("_");
+      io.to(roomId).emit("new_message", populatedMessage);
+
+      // Also emit notification to receiver
+      io.to(receiverId).emit("message_notification", {
+        conversationId: conversation._id,
+        message: populatedMessage,
+      });
+    } catch (error) {
+      console.error("Send message error:", error);
+      socket.emit("error", { message: "Failed to send message" });
+    }
+  });
+
+  // Handle typing indicator
+  socket.on("typing", (data) => {
+    const { receiverId, isTyping } = data;
+    const roomId = [socket.userId, receiverId].sort().join("_");
+    socket.to(roomId).emit("user_typing", {
+      userId: socket.userId,
+      isTyping,
+    });
+  });
+
+  // Handle mark as read
+  socket.on("mark_read", async (data) => {
+    try {
+      const { otherUserId } = data;
+
+      await Message.updateMany(
+        { senderId: otherUserId, receiverId: socket.userId, read: false },
+        { read: true },
+      );
+
+      const conversation = await Conversation.findOne({
+        participants: { $all: [socket.userId, otherUserId] },
+      });
+
+      if (conversation) {
+        await conversation.markAsRead(socket.userId);
+      }
+
+      const roomId = [socket.userId, otherUserId].sort().join("_");
+      io.to(roomId).emit("messages_read", {
+        readerId: socket.userId,
+        readerName: "User",
+      });
+    } catch (error) {
+      console.error("Mark read error:", error);
+    }
+  });
+
+  // Handle disconnect
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.userId}`);
+  });
+});
+
+// Export io for use in routes
+export { io };
+
+import multer from "multer";
 import { uploadToCloudinary } from "./middleware/upload.js";
-import { completeProfile, getProfile } from "./controllers/profileController.js";
+import {
+  completeProfile,
+  getProfile,
+} from "./controllers/profileController.js";
 
 // Profile routes - append
 app.get("/api/auth/profile", verifyToken, getProfile);
 
-app.put("/api/auth/complete-profile", multer({ storage: multer.memoryStorage() }).fields([{ name: 'nidImages', maxCount: 2 }, { name: 'certificationImages', maxCount: 5 }, { name: 'profilePicture', maxCount: 1 }]), verifyToken, completeProfile);
-
+app.put(
+  "/api/auth/complete-profile",
+  multer({ storage: multer.memoryStorage() }).fields([
+    { name: "nidImages", maxCount: 2 },
+    { name: "certificationImages", maxCount: 5 },
+    { name: "profilePicture", maxCount: 1 },
+  ]),
+  verifyToken,
+  completeProfile,
+);
 
 /* =========================
    ADMIN ROUTES
@@ -373,6 +519,6 @@ app.get("/api/auth/protected", verifyToken, (req, res) => {
    START SERVER
 ========================= */
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
