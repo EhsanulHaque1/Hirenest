@@ -178,7 +178,37 @@ const Header = ({
               <li className="nav-user">Loading...</li>
             ) : user ? (
               <>
-                <li className="nav-user">Hi, {user.firstName || user.username}</li>
+                <li className="nav-user" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {user.profilePicture ? (
+                    <img 
+                      src={user.profilePicture} 
+                      alt="Profile" 
+                      style={{ 
+                        width: '36px', 
+                        height: '36px', 
+                        borderRadius: '50%', 
+                        objectFit: 'cover',
+                        border: '2px solid var(--primary-green)'
+                      }}
+                    />
+                  ) : (
+                    <span style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      background: 'var(--primary-green)',
+                      color: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 'bold',
+                      fontSize: '14px'
+                    }}>
+                      {user.firstName?.charAt(0) || user.username?.charAt(0)}
+                    </span>
+                  )}
+                  <span>Hi, {user.firstName || user.username}</span>
+                </li>
                 <li>
                   <button className="btn-logout" onClick={() => {
                     localStorage.removeItem("token");

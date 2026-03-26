@@ -45,7 +45,7 @@ import { completeProfile, getProfile } from "./controllers/profileController.js"
 // Profile routes - append
 app.get("/api/auth/profile", verifyToken, getProfile);
 
-app.put("/api/auth/complete-profile", multer({ storage: multer.memoryStorage() }).fields([{ name: 'nidImages', maxCount: 2 }, { name: 'certificationImages', maxCount: 5 }]), verifyToken, completeProfile);
+app.put("/api/auth/complete-profile", multer({ storage: multer.memoryStorage() }).fields([{ name: 'nidImages', maxCount: 2 }, { name: 'certificationImages', maxCount: 5 }, { name: 'profilePicture', maxCount: 1 }]), verifyToken, completeProfile);
 
 
 /* =========================

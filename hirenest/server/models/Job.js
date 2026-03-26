@@ -11,10 +11,16 @@ const jobSchema = new mongoose.Schema(
       required: true
     },
     postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    status: { type: String, enum: ['open', 'closed'], default: 'open' },
+    status: { type: String, enum: ['open', 'closed', 'completed'], default: 'open' },
+    acceptedApplicant: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    completedAt: { type: Date },
     applicants: [{
       user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       proposal: { type: String },
+      status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+      rated: { type: Boolean, default: false },
+      rating: { type: Number, min: 1, max: 5 },
+      ratingComment: { type: String },
       appliedAt: { type: Date, default: Date.now }
     }]
   },

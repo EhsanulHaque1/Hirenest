@@ -144,26 +144,62 @@ function FindFreelancers() {
             {filteredSeekers.map(seeker => (
               <div key={seeker._id} className="feature-card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-                  <div style={{
-                    width: '70px',
-                    height: '70px',
-                    borderRadius: '50%',
-                    background: 'var(--gradient-primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: 'white',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
-                  }}>
-                    {seeker.firstName?.charAt(0)}{seeker.lastName?.charAt(0)}
-                  </div>
+                  {seeker.profilePicture ? (
+                    <img 
+                      src={seeker.profilePicture}
+                      alt={`${seeker.firstName} ${seeker.lastName}`}
+                      style={{
+                        width: '70px',
+                        height: '70px',
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        border: '3px solid var(--primary-green)',
+                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
+                      }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: '70px',
+                      height: '70px',
+                      borderRadius: '50%',
+                      background: 'var(--gradient-primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '28px',
+                      fontWeight: 'bold',
+                      color: 'white',
+                      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
+                    }}>
+                      {seeker.firstName?.charAt(0)}{seeker.lastName?.charAt(0)}
+                    </div>
+                  )}
                   <div style={{ marginLeft: '16px' }}>
                     <h3 style={{ margin: '0 0 4px 0', fontSize: '1.25rem' }}>{seeker.firstName} {seeker.lastName}</h3>
                     <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem' }}>@{seeker.username}</p>
                   </div>
                 </div>
+
+                {seeker.averageRating > 0 && (
+                  <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '2px' }}>
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <span key={star} style={{ 
+                          color: star <= Math.round(seeker.averageRating) ? '#f59e0b' : '#d1d5db',
+                          fontSize: '18px'
+                        }}>
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
+                      {seeker.averageRating.toFixed(1)}
+                    </span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                      ({seeker.ratings?.length || 0} reviews)
+                    </span>
+                  </div>
+                )}
 
                 <div style={{ marginBottom: '16px' }}>
                   <span style={{
@@ -224,6 +260,47 @@ function FindFreelancers() {
                         }}>
                           +{seeker.certificationImages.length - 3}
                         </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {seeker.ratings && seeker.ratings.length > 0 && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <p style={{ margin: '0 0 12px 0', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+                      <strong>Recent Reviews:</strong>
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {seeker.ratings.slice(0, 2).map((rating, idx) => (
+                        <div key={idx} style={{ 
+                          padding: '12px', 
+                          background: 'var(--bg-secondary)', 
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid var(--border-light)'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                            <div style={{ display: 'flex', gap: '2px' }}>
+                              {[1, 2, 3, 4, 5].map(star => (
+                                <span key={star} style={{ 
+                                  color: star <= rating.rating ? '#f59e0b' : '#d1d5db',
+                                  fontSize: '14px'
+                                }}>
+                                  ★
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          {rating.comment && (
+                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                              "{rating.comment}"
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                      {seeker.ratings.length > 2 && (
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'var(--primary-green)' }}>
+                          +{seeker.ratings.length - 2} more reviews
+                        </p>
                       )}
                     </div>
                   </div>

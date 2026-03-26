@@ -6,11 +6,15 @@ const CreateProfile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [role, setRole] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [jobField, setJobField] = useState('');
   const [nidFiles, setNidFiles] = useState([]);
   const [certFiles, setCertFiles] = useState([]);
+  const [profilePicFile, setProfilePicFile] = useState(null);
   const [previewNid, setPreviewNid] = useState([]);
   const [previewCerts, setPreviewCerts] = useState([]);
+  const [previewProfilePic, setPreviewProfilePic] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); 
@@ -24,6 +28,11 @@ const CreateProfile = () => {
       const parsedUser = JSON.parse(savedUser);
       setUser(parsedUser);
       setRole(parsedUser.role);
+      setFirstName(parsedUser.firstName || '');
+      setLastName(parsedUser.lastName || '');
+      if (parsedUser.profilePicture) {
+        setPreviewProfilePic(parsedUser.profilePicture);
+      }
     }
     if (!token) navigate('/');
   }, [navigate, token]);
@@ -40,6 +49,33 @@ const CreateProfile = () => {
     const files = Array.from(e.target.files);
     setCertFiles(files);
     setPreviewCerts(files.map(file => URL.createObjectURL(file)));
+  };
+
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicFile(file);
+      setPreviewProfilePic(URL.createObjectURL(file));
+    }
+  };
+
+  const removeNidImage = (index) => {
+    const newFiles = nidFiles.filter((_, idx) => idx !== index);
+    const newPreviews = previewNid.filter((_, idx) => idx !== index);
+    setNidFiles(newFiles);
+    setPreviewNid(newPreviews);
+  };
+
+  const removeCertImage = (index) => {
+    const newFiles = certFiles.filter((_, idx) => idx !== index);
+    const newPreviews = previewCerts.filter((_, idx) => idx !== index);
+    setCertFiles(newFiles);
+    setPreviewCerts(newPreviews);
+  };
+
+  const removeProfilePic = () => {
+    setProfilePicFile(null);
+    setPreviewProfilePic(null);
   };
 
   const jobFields = ['Web Development', 'App Development', 'UI/UX Design', 'Marketing'];
@@ -64,6 +100,13 @@ const CreateProfile = () => {
     }
 
     const formData = new FormData();
+    
+    formData.append('firstName', firstName);
+    formData.append('lastName', lastName);
+    
+    if (profilePicFile) {
+      formData.append('profilePicture', profilePicFile);
+    }
     if (role === 'jobProvider') {
       nidFiles.forEach(file => formData.append('nidImages', file));
     } else {
@@ -83,7 +126,6 @@ const CreateProfile = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Upload failed');
 
-      // Update localStorage
       const updatedUser = { ...user, ...data.user };
       localStorage.setItem('hirenest_user', JSON.stringify(updatedUser));
       setUser(updatedUser);
@@ -124,6 +166,107 @@ const CreateProfile = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="complaint-form-modern">
+          <div className="input-group">
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+              Your Name
+            </label>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+              <div style={{ flex: '1', minWidth: '150px' }}>
+                <input 
+                  type="text" 
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First Name"
+                  style={{
+                    padding: '12px',
+                    border: '2px solid var(--border-light)',
+                    borderRadius: 'var(--radius-md)',
+                    width: '100%',
+                    background: 'var(--bg-secondary)',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+              <div style={{ flex: '1', minWidth: '150px' }}>
+                <input 
+                  type="text" 
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last Name"
+                  style={{
+                    padding: '12px',
+                    border: '2px solid var(--border-light)',
+                    borderRadius: 'var(--radius-md)',
+                    width: '100%',
+                    background: 'var(--bg-secondary)',
+                    fontSize: '1rem'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
+              Profile Picture <span style={{ fontWeight: '400', color: 'var(--text-secondary)' }}>(optional)</span>
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '3px solid var(--primary-green)',
+                background: 'var(--bg-secondary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {previewProfilePic ? (
+                  <img 
+                    src={previewProfilePic} 
+                    alt="Profile" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '40px', color: 'var(--text-secondary)' }}>👤</span>
+                )}
+              </div>
+              <div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleProfilePicChange}
+                  style={{
+                    padding: '12px',
+                    border: '2px solid var(--border-light)',
+                    borderRadius: 'var(--radius-md)',
+                    width: '250px',
+                    background: 'var(--bg-secondary)'
+                  }}
+                />
+                {previewProfilePic && (
+                  <button
+                    type="button"
+                    onClick={removeProfilePic}
+                    style={{
+                      marginTop: '10px',
+                      padding: '8px 16px',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 'var(--radius-md)',
+                      cursor: 'pointer',
+                      fontWeight: '600'
+                    }}
+                  >
+                    Remove Photo
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
           {role === 'jobProvider' ? (
             <>
               <div className="input-group">
@@ -147,7 +290,30 @@ const CreateProfile = () => {
                 {previewNid.length > 0 && (
                   <div style={{ display: 'flex', gap: '16px', marginTop: '16px', justifyContent: 'center' }}>
                     {previewNid.map((preview, idx) => (
-                      <div key={idx} style={{ textAlign: 'center' }}>
+                      <div key={idx} style={{ textAlign: 'center', position: 'relative' }}>
+                        <button
+                          type="button"
+                          onClick={() => removeNidImage(idx)}
+                          style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            background: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 1
+                          }}
+                        >
+                          ✕
+                        </button>
                         <img 
                           src={preview} 
                           alt={`NID ${idx + 1}`} 
@@ -192,7 +358,30 @@ const CreateProfile = () => {
                 {previewCerts.length > 0 && (
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '16px', justifyContent: 'center' }}>
                     {previewCerts.map((preview, idx) => (
-                      <div key={idx} style={{ textAlign: 'center' }}>
+                      <div key={idx} style={{ textAlign: 'center', position: 'relative' }}>
+                        <button
+                          type="button"
+                          onClick={() => removeCertImage(idx)}
+                          style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            background: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 1
+                          }}
+                        >
+                          ✕
+                        </button>
                         <img 
                           src={preview} 
                           alt={`Cert ${idx + 1}`} 
