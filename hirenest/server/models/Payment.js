@@ -4,7 +4,7 @@ const paymentSchema = new mongoose.Schema({
   userId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
-    required: true 
+    required: false 
   },
   jobId: { 
     type: mongoose.Schema.Types.ObjectId, 
@@ -33,6 +33,20 @@ const paymentSchema = new mongoose.Schema({
   },
   jobData: {
     type: mongoose.Schema.Types.Mixed
+  },
+  paymentType: {
+    type: String,
+    enum: ['jobPosting', 'adminPayment'],
+    default: 'jobPosting'
+  },
+  recipientType: {
+    type: String,
+    enum: ['jobProvider', 'jobSeeker', 'admin'],
+    default: 'admin'
+  },
+  recipientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, { timestamps: true });
 

@@ -154,7 +154,7 @@ const Header = ({
           <ul>
             <li><Link to="/">Home</Link></li>
             {user && (
-              <li><Link to="/dashboard">Dashboard</Link></li>
+              <li><Link to={user.role === "admin" ? "/admin-payment" : "/dashboard"}>Dashboard</Link></li>
             )}
             <li>{loading ? (
               <span style={{ cursor: "default", color: "#6b7280" }}>Explore Jobs</span>
