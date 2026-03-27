@@ -5,7 +5,14 @@ import {
   handlePaymentFail,
   handlePaymentCancel,
   handlePaymentIPN,
-  getPaymentStatus
+  getPaymentStatus,
+  getClosedJobsForPayment,
+  getAdminTransactions,
+  initializeAdminPayment,
+  handleAdminPaymentSuccess,
+  handleAdminPaymentFail,
+  handleAdminPaymentCancel,
+  handleAdminPaymentIPN
 } from '../controllers/paymentController.js';
 import verifyToken from '../middleware/auth.js';
 
@@ -24,5 +31,14 @@ router.get('/posting-fee', (req, res) => {
   const fee = parseInt(process.env.JOB_POSTING_FEE) || 100;
   res.json({ fee });
 });
+
+// Admin payment routes
+router.get('/admin/closed-jobs', verifyToken, getClosedJobsForPayment);
+router.get('/admin/transactions', verifyToken, getAdminTransactions);
+router.post('/admin/initialize-payment', verifyToken, initializeAdminPayment);
+router.post('/admin/payment/success', handleAdminPaymentSuccess);
+router.post('/admin/payment/fail', handleAdminPaymentFail);
+router.post('/admin/payment/cancel', handleAdminPaymentCancel);
+router.post('/admin/payment/ipn', handleAdminPaymentIPN);
 
 export default router;

@@ -30,6 +30,7 @@ import AIAssistant from "./Pages/AIAssistant";
 import AdminPanel from "./Pages/AdminPanel";
 import AdminPage from "./Pages/AdminPage";
 import AdminJobs from "./Pages/AdminJobs";
+import AdminPayment from "./Pages/AdminPayment";
 import Dashboard from "./Pages/Dashboard";
 import Profile from "./Pages/Profile";
 import PaymentSuccess from "./Pages/PaymentSuccess";
@@ -64,6 +65,7 @@ function App() {
 <Route path="/admin-panel" element={<Layout><AdminPanel /></Layout>}/>
 <Route path="/admin-page" element={<Layout><AdminPage /></Layout>}/>
         <Route path="/admin-jobs" element={<Layout><AdminJobs /></Layout>}/>
+        <Route path="/admin-payment" element={<Layout><AdminPayment /></Layout>}/>
         <Route path="/dashboard" element={<Layout><Dashboard /></Layout>}/>
         <Route path="/profile" element={<Layout><Profile /></Layout>}/>
         <Route path="/profile/:userId" element={<Layout><Profile /></Layout>}/>
