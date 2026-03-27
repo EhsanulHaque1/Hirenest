@@ -7,6 +7,7 @@ import {
   FaEllipsisV,
 } from "react-icons/fa";
 import "./Chat.css";
+import ProfilePopup from "../Components/ProfilePopup";
 
 const SOCKET_URL = "http://localhost:5004";
 
@@ -22,6 +23,8 @@ function Chat() {
   const [showSearch, setShowSearch] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [profilePopupUserId, setProfilePopupUserId] = useState(null);
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -292,6 +295,18 @@ function Chat() {
     return role === "jobProvider" ? "badge-provider" : "badge-seeker";
   };
 
+  // Handle opening profile popup
+  const handleOpenProfilePopup = (userId) => {
+    setProfilePopupUserId(userId);
+    setShowProfilePopup(true);
+  };
+
+  // Handle closing profile popup
+  const handleCloseProfilePopup = () => {
+    setShowProfilePopup(false);
+    setProfilePopupUserId(null);
+  };
+
   if (!currentUser) {
     return (
       <div className="chat-page-wrapper">
@@ -363,7 +378,7 @@ function Chat() {
                           className="user-name"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/profile/${user._id}`);
+                            handleOpenProfilePopup(user._id);
                           }}
                           style={{ cursor: 'pointer' }}
                         >
@@ -414,7 +429,7 @@ function Chat() {
                         className="conversation-name"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/profile/${conv.otherUser?._id}`);
+                          handleOpenProfilePopup(conv.otherUser?._id);
                         }}
                         style={{ cursor: 'pointer' }}
                       >
@@ -470,7 +485,7 @@ function Chat() {
                   <div className="chat-user-details">
                     <span 
                       className="chat-user-name"
-                      onClick={() => navigate(`/profile/${selectedUser._id}`)}
+                      onClick={() => handleOpenProfilePopup(selectedUser._id)}
                       style={{ cursor: 'pointer' }}
                     >
                       {selectedUser.firstName} {selectedUser.lastName}
@@ -563,6 +578,12 @@ function Chat() {
           )}
         </div>
       </div>
+      {showProfilePopup && profilePopupUserId && (
+        <ProfilePopup
+          userId={profilePopupUserId}
+          onClose={handleCloseProfilePopup}
+        />
+      )}
     </div>
   );
 }

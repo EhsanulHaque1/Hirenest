@@ -12,6 +12,8 @@ const Profile = () => {
   const fileInputRef = useRef(null);
   const certFileInputRef = useRef(null);
   const [newCertImages, setNewCertImages] = useState([]);
+  const [showLargeImage, setShowLargeImage] = useState(false);
+  const [largeImageUrl, setLargeImageUrl] = useState("");
   const navigate = useNavigate();
   const { userId } = useParams();
   const API_BASE = import.meta.env.VITE_API_URL || "/api";
@@ -171,6 +173,16 @@ const Profile = () => {
     setNewCertImages(newCertImages.filter((_, i) => i !== index));
   };
 
+  const handleOpenLargeImage = (imageUrl) => {
+    setLargeImageUrl(imageUrl);
+    setShowLargeImage(true);
+  };
+
+  const handleCloseLargeImage = () => {
+    setShowLargeImage(false);
+    setLargeImageUrl("");
+  };
+
   const handleSaveChanges = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -299,7 +311,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
     <div className="profile-page-container">
       <div className="profile-card">
         <div className="profile-header">
-          <div className="profile-avatar-large" onClick={() => isOwnProfile && isEditing && fileInputRef.current?.click()} style={{ cursor: isOwnProfile && isEditing ? 'pointer' : 'default' }}>
+          <div className="profile-avatar-large" onClick={() => {
+            if (isOwnProfile && isEditing) {
+              fileInputRef.current?.click();
+            } else if (profile.profilePicture) {
+              handleOpenLargeImage(profile.profilePicture);
+            }
+          }} style={{ cursor: (isOwnProfile && isEditing) || profile.profilePicture ? 'pointer' : 'default' }}>
             {profile.profilePicture ? (
               <img
                 src={profile.profilePicture}
@@ -618,6 +636,14 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                   )}
                 </span>
               </div>
+              {profile.role === 'jobProvider' && (
+                <div className="profile-field">
+                  <span className="profile-field-label">NID Status</span>
+                  <span className="profile-field-value">
+                    <span className="profile-status profile-status--verified">✓ Verified</span>
+                  </span>
+                </div>
+              )}
               <div className="profile-field">
                 <span className="profile-field-label">Account Created</span>
                 <span className="profile-field-value">{formatDate(profile.createdAt)}</span>
@@ -637,18 +663,7 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
             </div>
           </div>
 
-          {profile.nidImages && profile.nidImages.length > 0 && (
-            <div className="profile-section">
-              <h2 className="profile-section-title">NID Images</h2>
-              <div className="profile-images">
-                {profile.nidImages.map((img, index) => (
-                  <div key={index} className="profile-image-wrapper">
-                    <img src={img} alt={`NID ${index + 1}`} className="profile-image" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+
 
           {profile.certificationImages && profile.certificationImages.length > 0 && (
             <div className="profile-section">
@@ -657,7 +672,7 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
               </div>
               <div className="profile-images">
                 {profile.certificationImages.map((img, index) => (
-                  <div key={index} className="profile-image-wrapper">
+                  <div key={index} className="profile-image-wrapper" onClick={() => handleOpenLargeImage(img)} style={{ cursor: 'pointer' }}>
                     <img src={img} alt={`Certification ${index + 1}`} className="profile-image" />
                   </div>
                 ))}
@@ -807,6 +822,14 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
           )}
         </div>
       </div>
+      {showLargeImage && largeImageUrl && (
+        <div className="large-image-modal" onClick={handleCloseLargeImage}>
+          <div className="large-image-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="large-image-modal-close" onClick={handleCloseLargeImage}>×</button>
+            <img src={largeImageUrl} alt="Large view" className="large-image-modal-img" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
