@@ -235,6 +235,7 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
           body: JSON.stringify({
             firstName: editData.firstName,
             lastName: editData.lastName,
+            jobField: editData.jobField,
             experience: editData.experience,
             education: editData.education,
           }),
@@ -257,9 +258,12 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
       const userData = JSON.parse(localStorage.getItem("hirenest_user"));
       userData.firstName = editData.firstName;
       userData.lastName = editData.lastName;
+      userData.jobField = editData.jobField;
       localStorage.setItem("hirenest_user", JSON.stringify(userData));
       
       alert("Profile updated successfully!");
+      // Navigate back with refresh state to ensure BrowseApply gets updated user data
+      navigate(-1, { state: { refreshUser: true } });
     } catch (err) {
       alert(err.message);
     } finally {
@@ -388,6 +392,54 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
 
             </div>
           </div>
+
+          {profile.role === 'jobSeeker' && (
+            <div className="profile-section">
+              <h2 className="profile-section-title">Job Fields</h2>
+              {isEditing ? (
+                <div className="profile-jobfields-edit">
+                  <p className="profile-jobfields-hint">Select one or more job fields you're interested in:</p>
+                  <div className="profile-jobfields-checkboxes">
+                    {['Web Development', 'App Development', 'UI/UX Design', 'Marketing'].map((field) => (
+                      <label key={field} className="profile-jobfield-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={(editData.jobField || []).includes(field)}
+                          onChange={(e) => {
+                            const currentFields = editData.jobField || [];
+                            if (e.target.checked) {
+                              setEditData({
+                                ...editData,
+                                jobField: [...currentFields, field]
+                              });
+                            } else {
+                              setEditData({
+                                ...editData,
+                                jobField: currentFields.filter(f => f !== field)
+                              });
+                            }
+                          }}
+                        />
+                        <span>{field}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="profile-jobfields-display">
+                  {(profile.jobField || []).length > 0 ? (
+                    <div className="profile-jobfields-list">
+                      {profile.jobField.map((field, index) => (
+                        <span key={index} className="profile-jobfield-badge">{field}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="profile-empty">No job fields selected</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="profile-section">
             <div className="profile-section-header">

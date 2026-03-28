@@ -8,7 +8,7 @@ const CreateProfile = () => {
   const [role, setRole] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [jobField, setJobField] = useState('');
+  const [selectedJobFields, setSelectedJobFields] = useState([]);
   const [nidFiles, setNidFiles] = useState([]);
   const [certFiles, setCertFiles] = useState([]);
   const [profilePicFile, setProfilePicFile] = useState(null);
@@ -86,8 +86,8 @@ const CreateProfile = () => {
     setMessage('');
     setMessageType('');
 
-    if (role === 'jobSeeker' && (!certFiles.length || !jobField)) {
-      setMessage('Please upload certification photos and select your job field.');
+    if (role === 'jobSeeker' && (!certFiles.length || selectedJobFields.length === 0)) {
+      setMessage('Please upload certification photos and select at least one job field.');
       setMessageType('error');
       setLoading(false);
       return;
@@ -111,7 +111,7 @@ const CreateProfile = () => {
       nidFiles.forEach(file => formData.append('nidImages', file));
     } else {
       certFiles.forEach(file => formData.append('certificationImages', file));
-      formData.append('jobField', jobField);
+      formData.append('jobField', JSON.stringify(selectedJobFields));
     }
 
     try {
@@ -404,28 +404,46 @@ const CreateProfile = () => {
               </div>
               <div className="input-group">
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                  Job Field *
+                  Job Fields * <span style={{ fontWeight: '400', color: 'var(--text-secondary)' }}>(Select one or more)</span>
                 </label>
-                <select 
-                  value={jobField} 
-                  onChange={(e) => setJobField(e.target.value)} 
-                  required 
-                  style={{ 
-                    width: '100%', 
-                    padding: '14px', 
-                    borderRadius: 'var(--radius-md)', 
-                    border: '2px solid var(--border-light)', 
-                    background: 'var(--bg-primary)', 
-                    fontSize: '1rem',
-                    color: 'var(--text-primary)',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <option value="">Select your expertise</option>
+                <div style={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: '12px',
+                  padding: '14px',
+                  borderRadius: 'var(--radius-md)', 
+                  border: '2px solid var(--border-light)', 
+                  background: 'var(--bg-primary)'
+                }}>
                   {jobFields.map(field => (
-                    <option key={field} value={field}>{field}</option>
+                    <label key={field} style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px',
+                      cursor: 'pointer',
+                      padding: '8px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: selectedJobFields.includes(field) ? 'var(--primary-green)' : 'var(--bg-secondary)',
+                      color: selectedJobFields.includes(field) ? 'white' : 'var(--text-primary)',
+                      border: '1px solid var(--border-light)',
+                      transition: 'all 0.2s ease'
+                    }}>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedJobFields.includes(field)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedJobFields([...selectedJobFields, field]);
+                          } else {
+                            setSelectedJobFields(selectedJobFields.filter(f => f !== field));
+                          }
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span style={{ fontSize: '0.9rem' }}>{field}</span>
+                    </label>
                   ))}
-                </select>
+                </div>
               </div>
             </>
           )}

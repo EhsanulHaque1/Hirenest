@@ -353,6 +353,63 @@
   border: 1px solid var(--border-color);
 }
 
+.profile-jobfields-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-jobfields-hint {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.profile-jobfields-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.profile-jobfield-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.profile-jobfield-checkbox:hover {
+  border-color: var(--primary-green);
+  background: var(--bg-tertiary);
+}
+
+.profile-jobfield-checkbox input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary-green);
+}
+
+.profile-jobfield-checkbox span {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+  flex: 1;
+  min-width: 0;
+}
+
 .profile-list-item-subtitle {
   font-size: 0.875rem;
   color: var(--text-secondary);

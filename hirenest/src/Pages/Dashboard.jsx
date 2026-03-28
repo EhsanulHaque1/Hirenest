@@ -254,12 +254,6 @@ function Dashboard() {
             Welcome back, {user.firstName}! Here's your {user.role === 'jobProvider' ? 'job postings' : 'applications'} overview.
           </p>
         </div>
-        <button
-          onClick={() => navigate('/create-profile')}
-          className="btn-modern-secondary"
-        >
-          Change Profile
-        </button>
       </div>
 
       <div className="dashboard-stats">
@@ -306,7 +300,11 @@ function Dashboard() {
             <div className="stat-card">
               <div className="stat-icon">🎯</div>
               <div className="stat-content">
-                <span className="stat-number">{user.jobField}</span>
+                <span className="stat-text">
+                  {Array.isArray(user.jobField) 
+                    ? user.jobField.join(' • ') 
+                    : user.jobField}
+                </span>
                 <span className="stat-label">Your Field</span>
               </div>
             </div>
@@ -316,7 +314,7 @@ function Dashboard() {
 
       {user.role === 'jobProvider' ? (
         <div className="content-section">
-          <div className="section-header">
+          <div className="section-header section-header-centered-text">
             <h2>My Posted Jobs</h2>
             <button
               onClick={() => navigate('/post-job')}
@@ -525,7 +523,7 @@ function Dashboard() {
         </div>
       ) : (
         <div className="content-section">
-          <div className="section-header">
+          <div className="section-header section-header-centered">
             <h2>My Applications</h2>
           </div>
           

@@ -2473,6 +2473,16 @@ button:active,
   line-height: 1.2;
 }
 
+.stat-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+}
+
 .stat-label {
   font-size: 0.85rem;
   color: var(--text-secondary);
@@ -2491,6 +2501,22 @@ button:active,
 
 .section-header h2 {
   margin-bottom: 0;
+}
+
+.section-header-centered {
+  justify-content: center;
+}
+
+.section-header-centered-text {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.section-header-centered-text h2 {
+  flex: 1;
+  text-align: center;
+  margin: 0;
 }
 
 /* Modern Empty State */
@@ -2533,6 +2559,10 @@ button:active,
   font-size: 1rem;
   margin: 0 0 28px 0;
   line-height: 1.6;
+}
+
+.modern-empty-state .btn-modern-primary {
+  margin: 0 auto;
 }
 
 /* Modern Job Card */

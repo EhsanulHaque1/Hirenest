@@ -217,7 +217,9 @@ function FindFreelancers() {
                     fontWeight: '600',
                     boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
                   }}>
-                    {seeker.jobField}
+                    {Array.isArray(seeker.jobField) 
+                      ? seeker.jobField.join(' • ') 
+                      : seeker.jobField}
                   </span>
                 </div>
 

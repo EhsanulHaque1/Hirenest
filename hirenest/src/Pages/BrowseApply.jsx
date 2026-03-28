@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Pages.css";
 import "./BrowseApply.css";
 
 function BrowseApply() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
@@ -51,7 +52,34 @@ function BrowseApply() {
     };
     
     fetchUserAndJobs();
-  }, [navigate]);
+  }, [navigate, location, API_BASE]);
+
+  // Refetch user data when location state indicates a refresh is needed
+  useEffect(() => {
+    if (location.state?.refreshUser) {
+      const fetchUser = async () => {
+        const savedToken = localStorage.getItem('token');
+        if (!savedToken) return;
+        
+        try {
+          const userRes = await fetch(`${API_BASE}/auth/profile`, {
+            headers: { 'Authorization': `Bearer ${savedToken}` }
+          });
+          
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            setUser(userData);
+          }
+        } catch (error) {
+          console.error('Error refetching user:', error);
+        }
+      };
+      
+      fetchUser();
+      // Clear the refresh state to avoid unnecessary refetches
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, API_BASE, navigate, location.pathname]);
 
   const fetchJobs = async () => {
     try {
@@ -70,7 +98,10 @@ function BrowseApply() {
   };
 
   const canApplyToJob = (job) => {
-    return user && user.jobField && user.jobField.includes(job.jobField);
+    if (!user || !user.jobField || !job.jobField) return false;
+    // Handle both array and string formats for jobField
+    const userFields = Array.isArray(user.jobField) ? user.jobField : [user.jobField];
+    return userFields.includes(job.jobField);
   };
 
   const handleFieldFilter = (field) => {
@@ -214,12 +245,12 @@ function BrowseApply() {
     <div className="page-container">
       <h1>Find Your Next Opportunity</h1>
       <p className="intro-text">
-        Explore jobs that match your {user.jobField || 'skills'} expertise.
+        Explore jobs that match your {Array.isArray(user.jobField) ? user.jobField.join(', ') : user.jobField || 'skills'} expertise.
       </p>
       
       {user.jobField && (
         <div className="user-field-badge">
-          <strong>Your Field:</strong> {user.jobField}
+          <strong>Your Field:</strong> {Array.isArray(user.jobField) ? user.jobField.join(', ') : user.jobField}
         </div>
       )}
       
@@ -321,7 +352,7 @@ function BrowseApply() {
                     )
                   ) : (
                     <div className="browse-field-restriction">
-                      🔒 You can only apply to {user.jobField} jobs
+                      🔒 You can only apply to {Array.isArray(user.jobField) ? user.jobField.join(', ') : user.jobField} jobs
                     </div>
                   )}
                 </div>

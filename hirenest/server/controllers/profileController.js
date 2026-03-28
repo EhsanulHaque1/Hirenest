@@ -74,8 +74,14 @@ export const completeProfile = async (req, res) => {
       updateData.certificationImages = certUrls;
     }
     if (jobField) {
-      updateData.jobField = jobField;
-      console.log('📋 JobField:', jobField);
+      try {
+        // Parse JSON string if needed (frontend sends JSON.stringify(array))
+        updateData.jobField = typeof jobField === 'string' ? JSON.parse(jobField) : jobField;
+        console.log('📋 JobField:', updateData.jobField);
+      } catch (parseError) {
+        console.error('❌ JobField parse error:', parseError);
+        return res.status(400).json({ error: 'Invalid jobField format' });
+      }
     }
 
     const user = await User.findByIdAndUpdate(
