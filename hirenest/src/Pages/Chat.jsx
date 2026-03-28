@@ -5,6 +5,7 @@ import {
   FaPaperPlane,
   FaArrowLeft,
   FaEllipsisV,
+  FaTrash,
 } from "react-icons/fa";
 import "./Chat.css";
 import ProfilePopup from "../Components/ProfilePopup";
@@ -25,10 +26,25 @@ function Chat() {
   const [otherUserTyping, setOtherUserTyping] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [profilePopupUserId, setProfilePopupUserId] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+
+  // Check for chat_with parameter and auto-open conversation
+  useEffect(() => {
+    const chatWithData = localStorage.getItem("chat_with");
+    if (chatWithData && currentUser) {
+      try {
+        const userToChat = JSON.parse(chatWithData);
+        handleSelectUser(userToChat);
+        localStorage.removeItem("chat_with"); // Clear after use
+      } catch (error) {
+        console.error("Error parsing chat_with data:", error);
+      }
+    }
+  }, [currentUser]);
 
   // Initialize socket connection
   useEffect(() => {
@@ -83,6 +99,12 @@ function Chat() {
       });
 
       socketRef.current.on("messages_read", () => {
+        fetchConversations();
+      });
+
+      socketRef.current.on("message_deleted", ({ messageId }) => {
+        // Remove deleted message from UI
+        setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
         fetchConversations();
       });
 
@@ -257,6 +279,86 @@ function Chat() {
     }, 2000);
   };
 
+  // Handle delete message
+  const handleDeleteMessage = async (messageId) => {
+    if (!window.confirm("Are you sure you want to delete this message?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${SOCKET_URL}/api/chat/messages/${messageId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.ok) {
+        // Remove message from UI
+        setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
+
+        // Emit socket event to notify other user
+        socketRef.current.emit("message_deleted", {
+          messageId,
+          receiverId: selectedUser._id,
+        });
+
+        // Refresh conversations to update last message
+        fetchConversations();
+      } else {
+        alert("Failed to delete message");
+      }
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      alert("Error deleting message");
+    }
+  };
+
+  // Handle delete conversation
+  const handleDeleteConversation = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this entire conversation? This action cannot be undone.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${SOCKET_URL}/api/chat/conversations/${selectedUser._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.ok) {
+        // Clear messages and close chat
+        setMessages([]);
+        setSelectedUser(null);
+        setShowMenu(false);
+
+        // Refresh conversations list
+        fetchConversations();
+
+        alert("Conversation deleted successfully");
+      } else {
+        alert("Failed to delete conversation");
+      }
+    } catch (error) {
+      console.error("Error deleting conversation:", error);
+      alert("Error deleting conversation");
+    }
+  };
+
   // Scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -374,13 +476,13 @@ function Chat() {
                         )}
                       </div>
                       <div className="user-details">
-                        <span 
+                        <span
                           className="user-name"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleOpenProfilePopup(user._id);
                           }}
-                          style={{ cursor: 'pointer' }}
+                          style={{ cursor: "pointer" }}
                         >
                           {user.firstName} {user.lastName}
                         </span>
@@ -425,13 +527,13 @@ function Chat() {
                   </div>
                   <div className="conversation-content">
                     <div className="conversation-header">
-                      <span 
+                      <span
                         className="conversation-name"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenProfilePopup(conv.otherUser?._id);
                         }}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: "pointer" }}
                       >
                         {conv.otherUser?.firstName} {conv.otherUser?.lastName}
                       </span>
@@ -483,10 +585,10 @@ function Chat() {
                     )}
                   </div>
                   <div className="chat-user-details">
-                    <span 
+                    <span
                       className="chat-user-name"
                       onClick={() => handleOpenProfilePopup(selectedUser._id)}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: "pointer" }}
                     >
                       {selectedUser.firstName} {selectedUser.lastName}
                     </span>
@@ -499,16 +601,32 @@ function Chat() {
                     </span>
                   </div>
                 </div>
-                <button className="menu-btn">
-                  <FaEllipsisV />
-                </button>
+                <div className="menu-container">
+                  <button
+                    className="menu-btn"
+                    onClick={() => setShowMenu(!showMenu)}
+                  >
+                    <FaEllipsisV />
+                  </button>
+                  {showMenu && (
+                    <div className="menu-dropdown">
+                      <button
+                        className="menu-item delete-conversation"
+                        onClick={handleDeleteConversation}
+                      >
+                        <FaTrash /> Delete Conversation
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="messages-container">
                 <div className="messages-list">
                   {messages.map((message, index) => {
                     const isOwnMessage =
-                      message.senderId._id === currentUser.id;
+                      message.senderId._id ===
+                      (currentUser.id || currentUser._id);
                     const showDate =
                       index === 0 ||
                       formatDate(message.createdAt) !==
@@ -526,9 +644,22 @@ function Chat() {
                         >
                           <div className="message-bubble">
                             <p>{message.content}</p>
-                            <span className="message-time">
-                              {formatTime(message.createdAt)}
-                            </span>
+                            <div className="message-footer">
+                              <span className="message-time">
+                                {formatTime(message.createdAt)}
+                              </span>
+                              {isOwnMessage && (
+                                <button
+                                  className="delete-message-btn"
+                                  onClick={() =>
+                                    handleDeleteMessage(message._id)
+                                  }
+                                  title="Delete message"
+                                >
+                                  <FaTrash />
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

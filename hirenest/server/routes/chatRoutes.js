@@ -7,6 +7,7 @@ import {
   searchUsers,
   markAsRead,
   deleteMessage,
+  deleteConversation,
 } from "../controllers/chatController.js";
 
 const router = express.Router();
@@ -31,5 +32,8 @@ router.patch("/messages/:otherUserId/read", markAsRead);
 
 // Delete a message
 router.delete("/messages/:messageId", deleteMessage);
+
+// Delete entire conversation
+router.delete("/conversations/:otherUserId", deleteConversation);
 
 export default router;

@@ -5,7 +5,7 @@ import User from "../models/User.js";
 // Get all conversations for the current user
 export const getConversations = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.id || req.user._id;
 
     const conversations = await Conversation.find({
       participants: userId,
@@ -17,29 +17,53 @@ export const getConversations = async (req, res) => {
       .populate("lastMessage")
       .sort({ lastMessageAt: -1 });
 
-    // Get unread counts
-    const conversationsWithUnread = conversations.map((conv) => {
+    // Filter and map conversations
+    const conversationsWithUnread = [];
+
+    for (const conv of conversations) {
       const otherUser = conv.participants.find(
-        (p) => p._id.toString() !== userId,
+        (p) => p._id.toString() !== userId.toString(),
       );
-      return {
-        _id: conv._id,
-        otherUser: otherUser
-          ? {
-              _id: otherUser._id,
-              firstName: otherUser.firstName,
-              lastName: otherUser.lastName,
-              username: otherUser.username,
-              profilePicture: otherUser.profilePicture,
-              role: otherUser.role,
-            }
-          : null,
-        lastMessage: conv.lastMessage,
-        lastMessageAt: conv.lastMessageAt,
-        unreadCount: conv.unreadCount.get(userId) || 0,
-        jobContext: conv.jobContext,
-      };
-    });
+
+      // Check if there are any visible messages for this user
+      const visibleMessages = await Message.find({
+        $or: [
+          { senderId: userId, receiverId: otherUser?._id },
+          { senderId: otherUser?._id, receiverId: userId },
+        ],
+        deletedBy: { $ne: userId },
+      }).limit(1);
+
+      // Only include conversation if there are visible messages
+      if (visibleMessages.length > 0) {
+        // Get the last visible message
+        const lastVisibleMessage = await Message.findOne({
+          $or: [
+            { senderId: userId, receiverId: otherUser?._id },
+            { senderId: otherUser?._id, receiverId: userId },
+          ],
+          deletedBy: { $ne: userId },
+        }).sort({ createdAt: -1 });
+
+        conversationsWithUnread.push({
+          _id: conv._id,
+          otherUser: otherUser
+            ? {
+                _id: otherUser._id,
+                firstName: otherUser.firstName,
+                lastName: otherUser.lastName,
+                username: otherUser.username,
+                profilePicture: otherUser.profilePicture,
+                role: otherUser.role,
+              }
+            : null,
+          lastMessage: lastVisibleMessage,
+          lastMessageAt: lastVisibleMessage?.createdAt || conv.lastMessageAt,
+          unreadCount: conv.unreadCount.get(userId.toString()) || 0,
+          jobContext: conv.jobContext,
+        });
+      }
+    }
 
     res.json(conversationsWithUnread);
   } catch (error) {
@@ -225,5 +249,74 @@ export const deleteMessage = async (req, res) => {
   } catch (error) {
     console.error("Delete message error:", error);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Delete entire conversation
+export const deleteConversation = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const { otherUserId } = req.params;
+
+    console.log("Delete conversation request:", { userId, otherUserId });
+
+    // Find the conversation
+    const conversation = await Conversation.findOne({
+      participants: { $all: [userId, otherUserId] },
+    });
+
+    if (!conversation) {
+      console.log("Conversation not found");
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    console.log("Found conversation:", conversation._id);
+
+    // Mark all messages as deleted for this user
+    const updateResult = await Message.updateMany(
+      {
+        $or: [
+          { senderId: userId, receiverId: otherUserId },
+          { senderId: otherUserId, receiverId: userId },
+        ],
+      },
+      { $addToSet: { deletedBy: userId } },
+    );
+
+    console.log("Messages marked as deleted:", updateResult);
+
+    // Check if both users have deleted the conversation
+    const allMessages = await Message.find({
+      $or: [
+        { senderId: userId, receiverId: otherUserId },
+        { senderId: otherUserId, receiverId: userId },
+      ],
+    });
+
+    const allDeleted =
+      allMessages.length > 0 &&
+      allMessages.every(
+        (msg) =>
+          msg.deletedBy.includes(userId) && msg.deletedBy.includes(otherUserId),
+      );
+
+    console.log("All messages deleted by both users:", allDeleted);
+
+    // If both users deleted, remove the conversation
+    if (allDeleted) {
+      await Conversation.findByIdAndDelete(conversation._id);
+      await Message.deleteMany({
+        $or: [
+          { senderId: userId, receiverId: otherUserId },
+          { senderId: otherUserId, receiverId: userId },
+        ],
+      });
+      console.log("Conversation and messages permanently deleted");
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Delete conversation error:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
   }
 };

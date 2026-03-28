@@ -167,6 +167,19 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Handle message deletion
+  socket.on("message_deleted", async (data) => {
+    try {
+      const { messageId, receiverId } = data;
+
+      // Emit to both users in the room
+      const roomId = [socket.userId, receiverId].sort().join("_");
+      io.to(roomId).emit("message_deleted", { messageId });
+    } catch (error) {
+      console.error("Message deletion error:", error);
+    }
+  });
+
   // Handle disconnect
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.userId}`);
@@ -212,12 +225,14 @@ app.put(
 app.get("/api/users/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId).select("-passwordHash -verificationToken");
-    
+    const user = await User.findById(userId).select(
+      "-passwordHash -verificationToken",
+    );
+
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     res.json(user);
   } catch (error) {
     console.error("Get user profile error:", error);
