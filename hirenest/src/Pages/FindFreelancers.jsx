@@ -9,6 +9,7 @@ function FindFreelancers() {
   const [loading, setLoading] = useState(true);
   const [selectedField, setSelectedField] = useState('All');
   const [zoomImage, setZoomImage] = useState(null);
+  const [expandedReviews, setExpandedReviews] = useState({});
   
   const API_BASE = import.meta.env.VITE_API_URL || "/api";
   const token = localStorage.getItem('token');
@@ -45,6 +46,13 @@ function FindFreelancers() {
   const handleChat = (seeker) => {
     localStorage.setItem('chat_with', JSON.stringify(seeker));
     navigate('/chat');
+  };
+
+  const toggleReviews = (seekerId) => {
+    setExpandedReviews(prev => ({
+      ...prev,
+      [seekerId]: !prev[seekerId]
+    }));
   };
 
   const filteredSeekers = selectedField === 'All' 
@@ -278,7 +286,7 @@ function FindFreelancers() {
                       <strong>Recent Reviews:</strong>
                     </p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {seeker.ratings.slice(0, 2).map((rating, idx) => (
+                      {(expandedReviews[seeker._id] ? seeker.ratings : seeker.ratings.slice(0, 2)).map((rating, idx) => (
                         <div key={idx} style={{ 
                           padding: '12px', 
                           background: 'var(--bg-secondary)', 
@@ -305,8 +313,19 @@ function FindFreelancers() {
                         </div>
                       ))}
                       {seeker.ratings.length > 2 && (
-                        <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'var(--primary-green)' }}>
-                          +{seeker.ratings.length - 2} more reviews
+                        <p 
+                          onClick={() => toggleReviews(seeker._id)}
+                          style={{ 
+                            margin: '4px 0 0 0', 
+                            fontSize: '0.8rem', 
+                            color: 'var(--primary-green)',
+                            cursor: 'pointer',
+                            fontWeight: '600'
+                          }}
+                        >
+                          {expandedReviews[seeker._id] 
+                            ? 'Show less reviews' 
+                            : `+${seeker.ratings.length - 2} more reviews`}
                         </p>
                       )}
                     </div>
