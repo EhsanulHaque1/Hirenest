@@ -313,9 +313,11 @@ export const getClosedJobsForPayment = async (req, res) => {
     }
 
     // Find all closed jobs that haven't been paid yet
-    // Get all job IDs that have admin payments (any status)
+    // Get all job IDs that have completed or pending admin payments
+    // Failed or cancelled payments should not exclude jobs from pending list
     const paidJobIds = await Payment.distinct('jobId', { 
-      paymentType: 'adminPayment'
+      paymentType: 'adminPayment',
+      status: { $in: ['completed', 'pending'] }
     });
     
     // Find all closed or completed jobs that are NOT in the paidJobIds list
