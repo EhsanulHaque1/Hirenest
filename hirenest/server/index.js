@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -15,7 +16,10 @@ import connectDB from "./connect.cjs";
 import User from "./models/User.js";
 import Message from "./models/Chat.js";
 import Conversation from "./models/Conversation.js";
-import { sendVerificationEmail } from "./utils/emailService.js";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} from "./utils/emailService.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
@@ -34,7 +38,11 @@ const app = express();
 const PORT = process.env.PORT || 5004;
 
 /* Middleware */
-app.use(cors());
+app.use(cors({
+  origin: true, // Allow all origins when credentials are needed
+  credentials: true,
+}));
+app.use(cookieParser());
 app.use(express.json());
 
 /* Create HTTP server with Socket.io */
@@ -549,6 +557,78 @@ app.post("/api/auth/resend-verification", async (req, res) => {
     res.json({ message: "Verification email resent" });
   } catch (error) {
     console.error("Resend verification error:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+/* =========================
+   FORGOT PASSWORD
+========================= */
+
+app.post("/api/auth/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "No account found with this email" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+
+    await user.save();
+
+    await sendPasswordResetEmail(email, resetToken);
+
+    res.json({ message: "Password reset email sent. Check your inbox." });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+/* =========================
+   RESET PASSWORD
+========================= */
+
+app.post("/api/auth/reset-password", async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res
+        .status(400)
+        .json({ error: "Token and new password are required" });
+    }
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid or expired reset token" });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.json({ message: "Password reset successful. You can now login." });
+  } catch (error) {
+    console.error("Reset password error:", error);
     res.status(500).json({ error: "Server error" });
   }
 });

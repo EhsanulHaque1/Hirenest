@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "./Header.css";
+import { setAuthCookie, clearAuthCookies } from "../../utils/cookies";
 
 const Header = ({
   showSignIn,
@@ -42,8 +43,9 @@ const Header = ({
     try {
       const res = await fetch(`${API_BASE}/auth/profile`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -58,9 +60,17 @@ const Header = ({
 
     // Admin special case
     if (signInData.username === "admin" && signInData.password === "admin") {
-      const adminUser = { username: "admin", firstName: "Admin", role: "admin", profileComplete: true };
+      const adminUser = {
+        username: "admin",
+        firstName: "Admin",
+        role: "admin",
+        profileComplete: true,
+      };
+      // Store in both localStorage and cookies for backward compatibility
       localStorage.setItem("token", "admin-token");
       localStorage.setItem("hirenest_user", JSON.stringify(adminUser));
+      setAuthCookie("token", "admin-token");
+      setAuthCookie("hirenest_user", JSON.stringify(adminUser));
       setUser(adminUser);
       setShowSignIn(false);
       setSignInData({ username: "", password: "" });
@@ -73,14 +83,16 @@ const Header = ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(signInData),
+        credentials: "include",
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Sign in failed");
 
       const userData = { ...data };
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("hirenest_user", JSON.stringify(userData));
+      // Store token in cookie (httpOnly cookie is set by server)
+      setAuthCookie("token", data.token);
+      setAuthCookie("hirenest_user", JSON.stringify(userData));
       setUser(userData);
       setShowSignIn(false);
       setSignInData({ username: "", password: "" });
@@ -126,7 +138,7 @@ const Header = ({
       if (!res.ok) throw new Error(data.error || "Sign up failed");
 
       // Register doesn't return token/profileComplete, so direct to verify email notice
-      alert(data.message || 'Registration successful. Check email to verify.');
+      alert(data.message || "Registration successful. Check email to verify.");
       setShowSignUp(false);
       setSignUpData({
         firstName: "",
@@ -152,78 +164,130 @@ const Header = ({
 
         <nav>
           <ul>
-            <li><Link to="/">Home</Link></li>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
             {user && (
-              <li><Link to={user.role === "admin" ? "/admin-payment" : "/dashboard"}>Dashboard</Link></li>
+              <li>
+                <Link
+                  to={user.role === "admin" ? "/admin-payment" : "/dashboard"}
+                >
+                  Dashboard
+                </Link>
+              </li>
             )}
-            <li>{loading ? (
-              <span style={{ cursor: "default", color: "#6b7280" }}>Explore Jobs</span>
-            ) : !user ? (
-              <span onClick={() => setShowSignUp(true)} style={{ cursor: "pointer" }}>Explore Jobs</span>
-            ) : user.role === "admin" ? (
-              <Link to="/admin-jobs">Available Jobs</Link>
-            ) : (
-              <Link to="/browse-apply">Explore Jobs</Link>
-            )}</li>
-            <li>{loading ? (
-              <span style={{ cursor: "default", color: "#6b7280" }}>Admin Panel</span>
-            ) : !user ? (
-              <span onClick={() => setShowSignUp(true)} style={{ cursor: "pointer" }}>Admin Panel</span>
-            ) : user.role === "admin" ? (
-              <Link to="/admin-page">Admin Page</Link>
-            ) : (
-              <Link to="/admin-panel">Admin Panel</Link>
-            )}</li>
+            <li>
+              {loading ? (
+                <span style={{ cursor: "default", color: "#6b7280" }}>
+                  Explore Jobs
+                </span>
+              ) : !user ? (
+                <span
+                  onClick={() => setShowSignUp(true)}
+                  style={{ cursor: "pointer" }}
+                >
+                  Explore Jobs
+                </span>
+              ) : user.role === "admin" ? (
+                <Link to="/admin-jobs">Available Jobs</Link>
+              ) : (
+                <Link to="/browse-apply">Explore Jobs</Link>
+              )}
+            </li>
+            <li>
+              {loading ? (
+                <span style={{ cursor: "default", color: "#6b7280" }}>
+                  Admin Panel
+                </span>
+              ) : !user ? (
+                <span
+                  onClick={() => setShowSignUp(true)}
+                  style={{ cursor: "pointer" }}
+                >
+                  Admin Panel
+                </span>
+              ) : user.role === "admin" ? (
+                <Link to="/admin-page">Admin Page</Link>
+              ) : (
+                <Link to="/admin-panel">Admin Panel</Link>
+              )}
+            </li>
             {loading ? (
               <li className="nav-user">Loading...</li>
             ) : user ? (
               <>
-                <li className="nav-user" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <li
+                  className="nav-user"
+                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
+                >
                   {user.profilePicture ? (
-                    <img 
-                      src={user.profilePicture} 
-                      alt="Profile" 
-                      style={{ 
-                        width: '36px', 
-                        height: '36px', 
-                        borderRadius: '50%', 
-                        objectFit: 'cover',
-                        border: '2px solid var(--primary-green)'
+                    <img
+                      src={user.profilePicture}
+                      alt="Profile"
+                      style={{
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "2px solid var(--primary-green)",
                       }}
                     />
                   ) : (
-                    <span style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      background: 'var(--primary-green)',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 'bold',
-                      fontSize: '14px'
-                    }}>
+                    <span
+                      style={{
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: "50%",
+                        background: "var(--primary-green)",
+                        color: "white",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                      }}
+                    >
                       {user.firstName?.charAt(0) || user.username?.charAt(0)}
                     </span>
                   )}
-                  <Link to="/profile" style={{ textDecoration: 'none', color: 'inherit' }}>Hi, {user.firstName || user.username}</Link>
+                  <Link
+                    to="/profile"
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    Hi, {user.firstName || user.username}
+                  </Link>
                 </li>
                 <li>
-                  <button className="btn-logout" onClick={() => {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("hirenest_user");
-                    setUser(null);
-                    navigate("/");
-                  }}>
+                  <button
+                    className="btn-logout"
+                    onClick={() => {
+                      clearAuthCookies();
+                      setUser(null);
+                      navigate("/");
+                    }}
+                  >
                     Logout
                   </button>
                 </li>
               </>
             ) : (
               <>
-                <li><button className="btn-signin" onClick={() => setShowSignIn(true)}>Sign In</button></li>
-                <li><button className="btn-signup" onClick={() => setShowSignUp(true)}>Sign Up</button></li>
+                <li>
+                  <button
+                    className="btn-signin"
+                    onClick={() => setShowSignIn(true)}
+                  >
+                    Sign In
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="btn-signup"
+                    onClick={() => setShowSignUp(true)}
+                  >
+                    Sign Up
+                  </button>
+                </li>
               </>
             )}
           </ul>
@@ -234,23 +298,63 @@ const Header = ({
       {showSignIn && (
         <div className="modal-overlay" onClick={() => setShowSignIn(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={(e) => { e.stopPropagation(); setShowSignIn(false); }}>✕</button>
+            <button
+              className="modal-close"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSignIn(false);
+              }}
+            >
+              ✕
+            </button>
             <div className="modal-icon">🔑</div>
             <h2>Welcome Back</h2>
             <p className="modal-subtitle">Sign in to your account</p>
             <form onSubmit={submitSignIn}>
               <div className="input-group">
                 <span className="input-icon">👤</span>
-                <input name="username" value={signInData.username} onChange={handleSignInChange} placeholder="Username" required />
+                <input
+                  name="username"
+                  value={signInData.username}
+                  onChange={handleSignInChange}
+                  placeholder="Username"
+                  required
+                />
               </div>
               <div className="input-group">
                 <span className="input-icon">🔒</span>
-                <input type="password" name="password" value={signInData.password} onChange={handleSignInChange} placeholder="Password" required />
+                <input
+                  type="password"
+                  name="password"
+                  value={signInData.password}
+                  onChange={handleSignInChange}
+                  placeholder="Password"
+                  required
+                />
               </div>
-              <button type="submit" className="modal-btn modal-btn--signin">Sign In</button>
+              <button type="submit" className="modal-btn modal-btn--signin">
+                Sign In
+              </button>
             </form>
             <p className="modal-switch">
-              Don't have an account? <span onClick={() => { setShowSignIn(false); setShowSignUp(true); }}>Sign Up</span>
+              <Link
+                to="/forgot-password"
+                onClick={() => setShowSignIn(false)}
+                style={{ color: "#2563eb", textDecoration: "underline" }}
+              >
+                Forgot Password?
+              </Link>
+            </p>
+            <p className="modal-switch">
+              Don't have an account?{" "}
+              <span
+                onClick={() => {
+                  setShowSignIn(false);
+                  setShowSignUp(true);
+                }}
+              >
+                Sign Up
+              </span>
             </p>
           </div>
         </div>
@@ -260,7 +364,15 @@ const Header = ({
       {showSignUp && (
         <div className="modal-overlay" onClick={() => setShowSignUp(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={(e) => { e.stopPropagation(); setShowSignUp(false); }}>✕</button>
+            <button
+              className="modal-close"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSignUp(false);
+              }}
+            >
+              ✕
+            </button>
             <div className="modal-icon">🚀</div>
             <h2>Create Account</h2>
             <p className="modal-subtitle">Join us today, it's free</p>
@@ -268,28 +380,65 @@ const Header = ({
               <div className="input-row">
                 <div className="input-group">
                   <span className="input-icon">✏️</span>
-                  <input name="firstName" value={signUpData.firstName} onChange={handleSignUpChange} placeholder="First Name" required />
+                  <input
+                    name="firstName"
+                    value={signUpData.firstName}
+                    onChange={handleSignUpChange}
+                    placeholder="First Name"
+                    required
+                  />
                 </div>
                 <div className="input-group">
                   <span className="input-icon">✏️</span>
-                  <input name="lastName" value={signUpData.lastName} onChange={handleSignUpChange} placeholder="Last Name" required />
+                  <input
+                    name="lastName"
+                    value={signUpData.lastName}
+                    onChange={handleSignUpChange}
+                    placeholder="Last Name"
+                    required
+                  />
                 </div>
               </div>
               <div className="input-group">
                 <span className="input-icon">📧</span>
-                <input type="email" name="email" value={signUpData.email} onChange={handleSignUpChange} placeholder="Email Address" required />
+                <input
+                  type="email"
+                  name="email"
+                  value={signUpData.email}
+                  onChange={handleSignUpChange}
+                  placeholder="Email Address"
+                  required
+                />
               </div>
               <div className="input-group">
                 <span className="input-icon">👤</span>
-                <input name="username" value={signUpData.username} onChange={handleSignUpChange} placeholder="Username" required />
+                <input
+                  name="username"
+                  value={signUpData.username}
+                  onChange={handleSignUpChange}
+                  placeholder="Username"
+                  required
+                />
               </div>
               <div className="role-selector">
-                <button type="button" className={`role-btn ${signUpData.role === "jobSeeker" ? "role-btn--active" : ""}`} onClick={() => setSignUpData({ ...signUpData, role: "jobSeeker" })}>
+                <button
+                  type="button"
+                  className={`role-btn ${signUpData.role === "jobSeeker" ? "role-btn--active" : ""}`}
+                  onClick={() =>
+                    setSignUpData({ ...signUpData, role: "jobSeeker" })
+                  }
+                >
                   <span className="role-icon">🔍</span>
                   <span className="role-label">Job Seeker</span>
                   <span className="role-desc">Looking for work</span>
                 </button>
-                <button type="button" className={`role-btn ${signUpData.role === "jobProvider" ? "role-btn--active" : ""}`} onClick={() => setSignUpData({ ...signUpData, role: "jobProvider" })}>
+                <button
+                  type="button"
+                  className={`role-btn ${signUpData.role === "jobProvider" ? "role-btn--active" : ""}`}
+                  onClick={() =>
+                    setSignUpData({ ...signUpData, role: "jobProvider" })
+                  }
+                >
                   <span className="role-icon">🏢</span>
                   <span className="role-label">Job Provider</span>
                   <span className="role-desc">Hiring talent</span>
@@ -297,16 +446,40 @@ const Header = ({
               </div>
               <div className="input-group">
                 <span className="input-icon">🔒</span>
-                <input type="password" name="password" value={signUpData.password} onChange={handleSignUpChange} placeholder="Password" required />
+                <input
+                  type="password"
+                  name="password"
+                  value={signUpData.password}
+                  onChange={handleSignUpChange}
+                  placeholder="Password"
+                  required
+                />
               </div>
               <div className="input-group">
                 <span className="input-icon">✅</span>
-                <input type="password" name="confirmPassword" value={signUpData.confirmPassword} onChange={handleSignUpChange} placeholder="Confirm Password" required />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={signUpData.confirmPassword}
+                  onChange={handleSignUpChange}
+                  placeholder="Confirm Password"
+                  required
+                />
               </div>
-              <button type="submit" className="modal-btn modal-btn--signup">Sign Up</button>
+              <button type="submit" className="modal-btn modal-btn--signup">
+                Sign Up
+              </button>
             </form>
             <p className="modal-switch">
-              Already have an account? <span onClick={() => { setShowSignUp(false); setShowSignIn(true); }}>Sign In</span>
+              Already have an account?{" "}
+              <span
+                onClick={() => {
+                  setShowSignUp(false);
+                  setShowSignIn(true);
+                }}
+              >
+                Sign In
+              </span>
             </p>
           </div>
         </div>

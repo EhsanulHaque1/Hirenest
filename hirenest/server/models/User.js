@@ -18,42 +18,56 @@ const userSchema = new mongoose.Schema(
     profileComplete: { type: Boolean, default: false },
     verificationToken: { type: String },
     verificationTokenExpires: { type: Date },
-    nidImages: [{ type: String }], 
-    certificationImages: [{ type: String }], 
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+    nidImages: [{ type: String }],
+    certificationImages: [{ type: String }],
     profilePicture: { type: String },
-    jobField: [{ 
-      type: String, 
-      enum: ['Web Development', 'App Development', 'UI/UX Design', 'Marketing'],
-    }],
-    experience: [{
-      company: { type: String, trim: true },
-      position: { type: String, trim: true },
-      startDate: { type: Date },
-      endDate: { type: Date },
-      description: { type: String, trim: true },
-      isCurrent: { type: Boolean, default: false },
-    }],
-    education: [{
-      institution: { type: String, trim: true },
-      degree: { type: String, trim: true },
-      fieldOfStudy: { type: String, trim: true },
-      startDate: { type: Date },
-      endDate: { type: Date },
-      description: { type: String, trim: true },
-    }],
-    appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }],
-    ratings: [{
-      jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job' },
-      rating: { type: Number, min: 1, max: 5 },
-      comment: { type: String },
-      ratedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      createdAt: { type: Date, default: Date.now }
-    }],
-    averageRating: { type: Number, default: 0 }
+    jobField: [
+      {
+        type: String,
+        enum: [
+          "Web Development",
+          "App Development",
+          "UI/UX Design",
+          "Marketing",
+        ],
+      },
+    ],
+    experience: [
+      {
+        company: { type: String, trim: true },
+        position: { type: String, trim: true },
+        startDate: { type: Date },
+        endDate: { type: Date },
+        description: { type: String, trim: true },
+        isCurrent: { type: Boolean, default: false },
+      },
+    ],
+    education: [
+      {
+        institution: { type: String, trim: true },
+        degree: { type: String, trim: true },
+        fieldOfStudy: { type: String, trim: true },
+        startDate: { type: Date },
+        endDate: { type: Date },
+        description: { type: String, trim: true },
+      },
+    ],
+    appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+    ratings: [
+      {
+        jobId: { type: mongoose.Schema.Types.ObjectId, ref: "Job" },
+        rating: { type: Number, min: 1, max: 5 },
+        comment: { type: String },
+        ratedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    averageRating: { type: Number, default: 0 },
   },
   { timestamps: true },
 );
 
 const User = mongoose.model("User", userSchema);
 export default User;
-

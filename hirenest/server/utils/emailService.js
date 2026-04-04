@@ -46,3 +46,34 @@ export const sendVerificationEmail = async (email, token) => {
     throw error;
   }
 };
+
+export const sendPasswordResetEmail = async (email, token) => {
+  const transporter = createTransporter();
+  const frontendUrl =
+    process.env.FRONTEND_URL || `http://localhost:${process.env.PORT || 5173}`;
+  const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Reset Your Password - HireNest",
+    html: `
+      <h2>Password Reset Request</h2>
+      <p>You requested to reset your password. Click the button below to proceed:</p>
+      <a href="${resetUrl}" 
+         style="background:#2563eb;color:white;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold;">
+         Reset Password
+      </a>
+      <p>This link will expire in 1 hour.</p>
+      <p>If you didn't request a password reset, ignore this email.</p>
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Password reset email sent to ${email}: ${info.messageId}`);
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw error;
+  }
+};

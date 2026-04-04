@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAI } from "../AIContext";
 import "./AIAssistance.css";
 import { FaRobot, FaTimes, FaPaperPlane } from "react-icons/fa";
+import { getAuthToken } from "../../utils/cookies";
 
 function AIAssistance() {
   const { isOpen, setIsOpen } = useAI();
@@ -20,7 +21,7 @@ function AIAssistance() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token"); // JWT token
+      const token = getAuthToken(); // JWT token
       const headers = { "Content-Type": "application/json" };
       if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -44,7 +45,10 @@ function AIAssistance() {
         // Handle other errors gracefully
         setMessages((prev) => [
           ...prev,
-          { role: "ai", text: "AI service is currently unavailable. Please try again later." },
+          {
+            role: "ai",
+            text: "AI service is currently unavailable. Please try again later.",
+          },
         ]);
         setLoading(false);
         return;
@@ -56,7 +60,10 @@ function AIAssistance() {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: "AI service is currently unavailable. Please try again later." },
+        {
+          role: "ai",
+          text: "AI service is currently unavailable. Please try again later.",
+        },
       ]);
     } finally {
       setLoading(false);

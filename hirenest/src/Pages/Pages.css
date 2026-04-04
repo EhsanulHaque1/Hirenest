@@ -1,6 +1,164 @@
 /* HireNest Modern UI - Unified Design System */
 /* Cohesive color palette with green accents matching header */
 
+/* Forgot Password & Reset Password Pages */
+.forgot-password-page,
+.reset-password-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  padding: 20px;
+}
+
+.forgot-password-container,
+.reset-password-container {
+  width: 100%;
+  max-width: 450px;
+}
+
+.forgot-password-card,
+.reset-password-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: 48px;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-light);
+  text-align: center;
+}
+
+.forgot-password-icon,
+.reset-password-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin: 0 auto 24px;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35);
+}
+
+.forgot-password-card h2,
+.reset-password-card h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.forgot-password-subtitle,
+.reset-password-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.forgot-password-card .input-group,
+.reset-password-card .input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.forgot-password-card .input-icon,
+.reset-password-card .input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+}
+
+.forgot-password-card input,
+.reset-password-card input {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: var(--bg-secondary);
+}
+
+.forgot-password-card input:focus,
+.reset-password-card input:focus {
+  outline: none;
+  border-color: var(--primary-green);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.forgot-password-btn,
+.reset-password-btn {
+  width: 100%;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+}
+
+.forgot-password-btn:hover,
+.reset-password-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.45);
+  background: var(--primary-green-dark);
+}
+
+.forgot-password-btn:disabled,
+.reset-password-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.forgot-password-links,
+.reset-password-links {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.back-to-login {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.back-to-login:hover {
+  color: var(--primary-green);
+}
+
+.alert {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.alert-success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
 /* Remove all default button outlines */
 button {
   outline: none !important;

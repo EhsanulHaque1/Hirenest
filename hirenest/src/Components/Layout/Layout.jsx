@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
 import Header from "../Header/Header";
+import {
+  getToken,
+  getUser,
+  setAuthCookie,
+  clearAuthCookies,
+} from "../../utils/cookies";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -9,11 +15,11 @@ function Layout({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user profile from database instead of localStorage
+  // Fetch user profile from database using cookie token
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const token = localStorage.getItem("token");
-      
+      const token = getToken();
+
       if (!token) {
         setUser(null);
         setLoading(false);
@@ -26,7 +32,7 @@ function Layout({ children }) {
           username: "admin",
           firstName: "Admin",
           role: "admin",
-          profileComplete: true
+          profileComplete: true,
         });
         setLoading(false);
         return;
@@ -35,29 +41,28 @@ function Layout({ children }) {
       try {
         const res = await fetch(`${API_BASE}/auth/profile`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
         if (res.ok) {
           const userData = await res.json();
           setUser(userData);
-          // Also update localStorage for other components that might need it
-          localStorage.setItem('hirenest_user', JSON.stringify(userData));
+          // Also update cookie for other components that might need it
+          setAuthCookie("hirenest_user", JSON.stringify(userData));
         } else {
-          // Token invalid, clear storage
-          localStorage.removeItem("token");
-          localStorage.removeItem("hirenest_user");
+          // Token invalid, clear cookies
+          clearAuthCookies();
           setUser(null);
         }
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        console.error("Error fetching user profile:", error);
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchUserProfile();
   }, []);
 
@@ -73,9 +78,7 @@ function Layout({ children }) {
         isHome={false}
         loading={loading}
       />
-      <div className="layout-content">
-        {children}
-      </div>
+      <div className="layout-content">{children}</div>
       <style>{`
         .layout-content {
           padding-top: 80px;
@@ -107,4 +110,3 @@ function Layout({ children }) {
 }
 
 export default Layout;
-
