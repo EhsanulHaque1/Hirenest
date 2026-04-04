@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./ProfilePopup.css";
+import { getAuthToken, getAuthUser } from "../utils/cookies";
 
 const ProfilePopup = ({ userId, onClose }) => {
   const [profile, setProfile] = useState(null);
@@ -12,8 +13,8 @@ const ProfilePopup = ({ userId, onClose }) => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-      const userData = localStorage.getItem("hirenest_user");
+      const token = getAuthToken();
+      const userData = getAuthUser();
 
       if (!token || !userData) {
         setError("Please login to view profiles");
@@ -124,12 +125,12 @@ const ProfilePopup = ({ userId, onClose }) => {
         <button className="profile-popup-close" onClick={onClose}>
           ×
         </button>
-        
+
         <div className="profile-popup-header">
-          <div 
+          <div
             className="profile-popup-avatar"
             onClick={handleProfilePictureClick}
-            style={{ cursor: profile.profilePicture ? 'pointer' : 'default' }}
+            style={{ cursor: profile.profilePicture ? "pointer" : "default" }}
           >
             {profile.profilePicture ? (
               <img
@@ -149,7 +150,9 @@ const ProfilePopup = ({ userId, onClose }) => {
               {profile.firstName} {profile.lastName}
             </h2>
             <p className="profile-popup-username">@{profile.username}</p>
-            <span className={`profile-popup-role-badge profile-popup-role-badge--${profile.role}`}>
+            <span
+              className={`profile-popup-role-badge profile-popup-role-badge--${profile.role}`}
+            >
               {getRoleDisplay(profile.role)}
             </span>
           </div>
@@ -157,15 +160,21 @@ const ProfilePopup = ({ userId, onClose }) => {
 
         <div className="profile-popup-content">
           <div className="profile-popup-section">
-            <h3 className="profile-popup-section-title">Personal Information</h3>
+            <h3 className="profile-popup-section-title">
+              Personal Information
+            </h3>
             <div className="profile-popup-grid">
               <div className="profile-popup-field">
                 <span className="profile-popup-field-label">Email</span>
-                <span className="profile-popup-field-value">{profile.email}</span>
+                <span className="profile-popup-field-value">
+                  {profile.email}
+                </span>
               </div>
               <div className="profile-popup-field">
                 <span className="profile-popup-field-label">Username</span>
-                <span className="profile-popup-field-value">@{profile.username}</span>
+                <span className="profile-popup-field-value">
+                  @{profile.username}
+                </span>
               </div>
             </div>
           </div>
@@ -177,14 +186,21 @@ const ProfilePopup = ({ userId, onClose }) => {
                 {profile.experience.map((exp, index) => (
                   <div key={index} className="profile-popup-list-item">
                     <div className="profile-popup-list-item-header">
-                      <h4 className="profile-popup-list-item-title">{exp.position}</h4>
-                      {exp.isCurrent && <span className="profile-popup-current-badge">Current</span>}
+                      <h4 className="profile-popup-list-item-title">
+                        {exp.position}
+                      </h4>
+                      {exp.isCurrent && (
+                        <span className="profile-popup-current-badge">
+                          Current
+                        </span>
+                      )}
                     </div>
                     <p className="profile-popup-list-item-subtitle">
                       <strong>Company:</strong> {exp.company}
                     </p>
                     <p className="profile-popup-list-item-date">
-                      <strong>Duration:</strong> {formatDate(exp.startDate)} - {exp.isCurrent ? "Present" : formatDate(exp.endDate)}
+                      <strong>Duration:</strong> {formatDate(exp.startDate)} -{" "}
+                      {exp.isCurrent ? "Present" : formatDate(exp.endDate)}
                     </p>
                     {exp.description && (
                       <p className="profile-popup-list-item-desc">
@@ -204,7 +220,9 @@ const ProfilePopup = ({ userId, onClose }) => {
                 {profile.education.map((edu, index) => (
                   <div key={index} className="profile-popup-list-item">
                     <div className="profile-popup-list-item-header">
-                      <h4 className="profile-popup-list-item-title">{edu.degree}</h4>
+                      <h4 className="profile-popup-list-item-title">
+                        {edu.degree}
+                      </h4>
                     </div>
                     <p className="profile-popup-list-item-subtitle">
                       <strong>Institution:</strong> {edu.institution}
@@ -215,7 +233,8 @@ const ProfilePopup = ({ userId, onClose }) => {
                       </p>
                     )}
                     <p className="profile-popup-list-item-date">
-                      <strong>Duration:</strong> {formatDate(edu.startDate)} - {formatDate(edu.endDate)}
+                      <strong>Duration:</strong> {formatDate(edu.startDate)} -{" "}
+                      {formatDate(edu.endDate)}
                     </p>
                     {edu.description && (
                       <p className="profile-popup-list-item-desc">
@@ -228,25 +247,52 @@ const ProfilePopup = ({ userId, onClose }) => {
             </div>
           )}
 
-          {profile.certificationImages && profile.certificationImages.length > 0 && (
-            <div className="profile-popup-section">
-              <h3 className="profile-popup-section-title">Certification Images</h3>
-              <div className="profile-popup-images">
-                {profile.certificationImages.map((img, index) => (
-                  <div key={index} className="profile-popup-image-wrapper" onClick={() => handleOpenLargeImage(img)} style={{ cursor: 'pointer' }}>
-                    <img src={img} alt={`Certification ${index + 1}`} className="profile-popup-image" />
-                  </div>
-                ))}
+          {profile.certificationImages &&
+            profile.certificationImages.length > 0 && (
+              <div className="profile-popup-section">
+                <h3 className="profile-popup-section-title">
+                  Certification Images
+                </h3>
+                <div className="profile-popup-images">
+                  {profile.certificationImages.map((img, index) => (
+                    <div
+                      key={index}
+                      className="profile-popup-image-wrapper"
+                      onClick={() => handleOpenLargeImage(img)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <img
+                        src={img}
+                        alt={`Certification ${index + 1}`}
+                        className="profile-popup-image"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
       {showLargeImage && largeImageUrl && (
-        <div className="profile-popup-large-image-modal" onClick={handleCloseLargeImage}>
-          <div className="profile-popup-large-image-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="profile-popup-large-image-modal-close" onClick={handleCloseLargeImage}>×</button>
-            <img src={largeImageUrl} alt="Large view" className="profile-popup-large-image-modal-img" />
+        <div
+          className="profile-popup-large-image-modal"
+          onClick={handleCloseLargeImage}
+        >
+          <div
+            className="profile-popup-large-image-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="profile-popup-large-image-modal-close"
+              onClick={handleCloseLargeImage}
+            >
+              ×
+            </button>
+            <img
+              src={largeImageUrl}
+              alt="Large view"
+              className="profile-popup-large-image-modal-img"
+            />
           </div>
         </div>
       )}

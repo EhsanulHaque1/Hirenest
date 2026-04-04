@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./Pages.css";
+import { getAuthToken } from "../utils/cookies";
 
 function AdminPayment() {
   const [closedJobs, setClosedJobs] = useState([]);
@@ -23,7 +24,7 @@ function AdminPayment() {
 
   const fetchClosedJobs = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const response = await fetch(`${API_BASE}/payments/admin/closed-jobs`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -45,7 +46,7 @@ function AdminPayment() {
 
   const fetchTransactions = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const response = await fetch(`${API_BASE}/payments/admin/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -68,16 +69,19 @@ function AdminPayment() {
   const handlePay = async (job) => {
     try {
       setProcessingJobId(job._id);
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
 
-      const response = await fetch(`${API_BASE}/payments/admin/initialize-payment`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE}/payments/admin/initialize-payment`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ jobId: job._id }),
         },
-        body: JSON.stringify({ jobId: job._id }),
-      });
+      );
 
       const data = await response.json();
 
@@ -134,7 +138,8 @@ function AdminPayment() {
     <div className="page-container">
       <h1>Admin Payment Dashboard</h1>
       <p className="intro-text">
-        Manage payments for closed jobs. Pay job providers or job seekers based on job completion status.
+        Manage payments for closed jobs. Pay job providers or job seekers based
+        on job completion status.
       </p>
 
       {/* Tab Navigation */}
@@ -193,12 +198,18 @@ function AdminPayment() {
                           </div>
                         </div>
                         <div className="complaint-content">
-                          <p><strong>Description:</strong></p>
+                          <p>
+                            <strong>Description:</strong>
+                          </p>
                           <p>{job.description}</p>
                         </div>
                         <div className="complaint-meta">
-                          <p><strong>Budget:</strong> ৳{budgetAmount}</p>
-                          <p><strong>Job Field:</strong> {job.jobField}</p>
+                          <p>
+                            <strong>Budget:</strong> ৳{budgetAmount}
+                          </p>
+                          <p>
+                            <strong>Job Field:</strong> {job.jobField}
+                          </p>
                           <p>
                             <strong>Payment Recipient:</strong>{" "}
                             {recipient.type === "jobSeeker" ? (
@@ -207,7 +218,8 @@ function AdminPayment() {
                               </span>
                             ) : (
                               <span className="role-badge role-jobProvider">
-                                Job Provider: {recipient.name} ({recipient.email})
+                                Job Provider: {recipient.name} (
+                                {recipient.email})
                               </span>
                             )}
                           </p>
@@ -266,7 +278,9 @@ function AdminPayment() {
                       <tbody>
                         {transactions.map((txn) => (
                           <tr key={txn._id}>
-                            <td className="id-cell">{txn.transactionId.slice(-8)}</td>
+                            <td className="id-cell">
+                              {txn.transactionId.slice(-8)}
+                            </td>
                             <td>{txn.jobData?.title || "N/A"}</td>
                             <td>
                               {txn.recipientType === "jobSeeker" ? (
@@ -286,8 +300,8 @@ function AdminPayment() {
                                   txn.status === "completed"
                                     ? "status-resolved"
                                     : txn.status === "pending"
-                                    ? "status-pending"
-                                    : "status-cancelled"
+                                      ? "status-pending"
+                                      : "status-cancelled"
                                 }`}
                               >
                                 {txn.status}
@@ -312,15 +326,17 @@ function AdminPayment() {
                               txn.status === "completed"
                                 ? "status-resolved"
                                 : txn.status === "pending"
-                                ? "status-pending"
-                                : "status-cancelled"
+                                  ? "status-pending"
+                                  : "status-cancelled"
                             }`}
                           >
                             {txn.status}
                           </span>
                         </div>
                         <div className="user-card-info">
-                          <span>Transaction: {txn.transactionId.slice(-8)}</span>
+                          <span>
+                            Transaction: {txn.transactionId.slice(-8)}
+                          </span>
                           <span>Amount: ৳{txn.amount}</span>
                           <span>
                             Recipient:{" "}

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Profile.css";
+import { getAuthToken, getAuthUser } from "../utils/cookies";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -17,14 +18,14 @@ const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
   const API_BASE = import.meta.env.VITE_API_URL || "/api";
-  
+
   // Determine if viewing own profile or another user's profile
   const isOwnProfile = !userId;
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-      const userData = localStorage.getItem("hirenest_user");
+      const token = getAuthToken();
+      const userData = getAuthUser();
 
       if (!token || !userData) {
         navigate("/");
@@ -33,10 +34,10 @@ const Profile = () => {
 
       try {
         // Determine which endpoint to use based on whether viewing own profile or another user's
-        const endpoint = isOwnProfile 
+        const endpoint = isOwnProfile
           ? `${API_BASE}/auth/profile`
           : `${API_BASE}/users/${userId}`;
-        
+
         const res = await fetch(endpoint, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -64,17 +65,17 @@ const Profile = () => {
 
   const handleProfilePictureChange = async (e) => {
     if (!isEditing) return;
-    
+
     const file = e.target.files[0];
     if (!file) return;
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please login again");
-        navigate("/");
-        return;
-      }
-      const formData = new FormData();
+    const token = getAuthToken();
+    if (!token) {
+      alert("Please login again");
+      navigate("/");
+      return;
+    }
+    const formData = new FormData();
     formData.append("profilePicture", file);
 
     setUpdating(true);
@@ -96,12 +97,12 @@ const Profile = () => {
       const data = await res.json();
       setProfile(data.user);
       setEditData(data.user);
-      
+
       // Update localStorage user data
       const userData = JSON.parse(localStorage.getItem("hirenest_user"));
       userData.profilePicture = data.user.profilePicture;
       localStorage.setItem("hirenest_user", JSON.stringify(userData));
-      
+
       alert("Profile picture updated successfully!");
     } catch (err) {
       alert(err.message);
@@ -184,24 +185,27 @@ const Profile = () => {
   };
 
   const handleSaveChanges = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please login again");
-        navigate("/");
-        return;
-      }
-      setUpdating(true);
-    
+    const token = getAuthToken();
+    if (!token) {
+      alert("Please login again");
+      navigate("/");
+      return;
+    }
+    setUpdating(true);
+
     try {
       // If there are new certification images, use FormData
       if (newCertImages.length > 0) {
         const formData = new FormData();
         formData.append("firstName", editData.firstName);
         formData.append("lastName", editData.lastName);
-formData.append("jobField", JSON.stringify(editData.jobField || []));
-        formData.append("experience", JSON.stringify(editData.experience || []));
+        formData.append("jobField", JSON.stringify(editData.jobField || []));
+        formData.append(
+          "experience",
+          JSON.stringify(editData.experience || []),
+        );
         formData.append("education", JSON.stringify(editData.education || []));
-        
+
         newCertImages.forEach((file) => {
           formData.append("certificationImages", file);
         });
@@ -251,16 +255,16 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
         setProfile(data.user);
         setEditData(data.user);
       }
-      
+
       setIsEditing(false);
-      
+
       // Update localStorage user data
       const userData = JSON.parse(localStorage.getItem("hirenest_user"));
       userData.firstName = editData.firstName;
       userData.lastName = editData.lastName;
       userData.jobField = editData.jobField;
       localStorage.setItem("hirenest_user", JSON.stringify(userData));
-      
+
       alert("Profile updated successfully!");
       // Navigate back with refresh state to ensure BrowseApply gets updated user data
       navigate(-1, { state: { refreshUser: true } });
@@ -287,7 +291,10 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
       <div className="profile-page-container">
         <div className="profile-error">
           <p>Error: {error}</p>
-          <button onClick={() => navigate(-1)} className="profile-btn profile-btn--secondary">
+          <button
+            onClick={() => navigate(-1)}
+            className="profile-btn profile-btn--secondary"
+          >
             Go Back
           </button>
         </div>
@@ -315,13 +322,22 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
     <div className="profile-page-container">
       <div className="profile-card">
         <div className="profile-header">
-          <div className="profile-avatar-large" onClick={() => {
-            if (isOwnProfile && isEditing) {
-              fileInputRef.current?.click();
-            } else if (profile.profilePicture) {
-              handleOpenLargeImage(profile.profilePicture);
-            }
-          }} style={{ cursor: (isOwnProfile && isEditing) || profile.profilePicture ? 'pointer' : 'default' }}>
+          <div
+            className="profile-avatar-large"
+            onClick={() => {
+              if (isOwnProfile && isEditing) {
+                fileInputRef.current?.click();
+              } else if (profile.profilePicture) {
+                handleOpenLargeImage(profile.profilePicture);
+              }
+            }}
+            style={{
+              cursor:
+                (isOwnProfile && isEditing) || profile.profilePicture
+                  ? "pointer"
+                  : "default",
+            }}
+          >
             {profile.profilePicture ? (
               <img
                 src={profile.profilePicture}
@@ -353,14 +369,18 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                 <input
                   type="text"
                   value={editData.firstName || ""}
-                  onChange={(e) => setEditData({ ...editData, firstName: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, firstName: e.target.value })
+                  }
                   placeholder="First Name"
                   className="profile-input"
                 />
                 <input
                   type="text"
                   value={editData.lastName || ""}
-                  onChange={(e) => setEditData({ ...editData, lastName: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, lastName: e.target.value })
+                  }
                   placeholder="Last Name"
                   className="profile-input"
                 />
@@ -371,7 +391,9 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
               </h1>
             )}
             <p className="profile-username">@{profile.username}</p>
-            <span className={`profile-role-badge profile-role-badge--${profile.role}`}>
+            <span
+              className={`profile-role-badge profile-role-badge--${profile.role}`}
+            >
               {getRoleDisplay(profile.role)}
             </span>
           </div>
@@ -389,18 +411,24 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                 <span className="profile-field-label">Username</span>
                 <span className="profile-field-value">@{profile.username}</span>
               </div>
-
             </div>
           </div>
 
-          {profile.role === 'jobSeeker' && (
+          {profile.role === "jobSeeker" && (
             <div className="profile-section">
               <h2 className="profile-section-title">Job Fields</h2>
               {isEditing ? (
                 <div className="profile-jobfields-edit">
-                  <p className="profile-jobfields-hint">Select one or more job fields you're interested in:</p>
+                  <p className="profile-jobfields-hint">
+                    Select one or more job fields you're interested in:
+                  </p>
                   <div className="profile-jobfields-checkboxes">
-                    {['Web Development', 'App Development', 'UI/UX Design', 'Marketing'].map((field) => (
+                    {[
+                      "Web Development",
+                      "App Development",
+                      "UI/UX Design",
+                      "Marketing",
+                    ].map((field) => (
                       <label key={field} className="profile-jobfield-checkbox">
                         <input
                           type="checkbox"
@@ -410,12 +438,14 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                             if (e.target.checked) {
                               setEditData({
                                 ...editData,
-                                jobField: [...currentFields, field]
+                                jobField: [...currentFields, field],
                               });
                             } else {
                               setEditData({
                                 ...editData,
-                                jobField: currentFields.filter(f => f !== field)
+                                jobField: currentFields.filter(
+                                  (f) => f !== field,
+                                ),
                               });
                             }
                           }}
@@ -430,7 +460,9 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                   {(profile.jobField || []).length > 0 ? (
                     <div className="profile-jobfields-list">
                       {profile.jobField.map((field, index) => (
-                        <span key={index} className="profile-jobfield-badge">{field}</span>
+                        <span key={index} className="profile-jobfield-badge">
+                          {field}
+                        </span>
                       ))}
                     </div>
                   ) : (
@@ -445,7 +477,10 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
             <div className="profile-section-header">
               <h2 className="profile-section-title">Experience</h2>
               {isEditing && isOwnProfile && (
-                <button onClick={handleAddExperience} className="profile-add-btn">
+                <button
+                  onClick={handleAddExperience}
+                  className="profile-add-btn"
+                >
                   + Add Experience
                 </button>
               )}
@@ -460,7 +495,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <input
                           type="text"
                           value={exp.company || ""}
-                          onChange={(e) => handleExperienceChange(index, "company", e.target.value)}
+                          onChange={(e) =>
+                            handleExperienceChange(
+                              index,
+                              "company",
+                              e.target.value,
+                            )
+                          }
                           placeholder="Enter company name"
                           className="profile-input"
                         />
@@ -470,7 +511,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <input
                           type="text"
                           value={exp.position || ""}
-                          onChange={(e) => handleExperienceChange(index, "position", e.target.value)}
+                          onChange={(e) =>
+                            handleExperienceChange(
+                              index,
+                              "position",
+                              e.target.value,
+                            )
+                          }
                           placeholder="Enter position"
                           className="profile-input"
                         />
@@ -481,8 +528,16 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <label>Start Date</label>
                         <input
                           type="date"
-                          value={exp.startDate ? exp.startDate.split("T")[0] : ""}
-                          onChange={(e) => handleExperienceChange(index, "startDate", e.target.value)}
+                          value={
+                            exp.startDate ? exp.startDate.split("T")[0] : ""
+                          }
+                          onChange={(e) =>
+                            handleExperienceChange(
+                              index,
+                              "startDate",
+                              e.target.value,
+                            )
+                          }
                           className="profile-input"
                         />
                       </div>
@@ -491,7 +546,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <input
                           type="date"
                           value={exp.endDate ? exp.endDate.split("T")[0] : ""}
-                          onChange={(e) => handleExperienceChange(index, "endDate", e.target.value)}
+                          onChange={(e) =>
+                            handleExperienceChange(
+                              index,
+                              "endDate",
+                              e.target.value,
+                            )
+                          }
                           className="profile-input"
                           disabled={exp.isCurrent}
                         />
@@ -500,7 +561,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <input
                           type="checkbox"
                           checked={exp.isCurrent || false}
-                          onChange={(e) => handleExperienceChange(index, "isCurrent", e.target.checked)}
+                          onChange={(e) =>
+                            handleExperienceChange(
+                              index,
+                              "isCurrent",
+                              e.target.checked,
+                            )
+                          }
                         />
                         Currently Working
                       </label>
@@ -509,34 +576,56 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                       <label>Description</label>
                       <textarea
                         value={exp.description || ""}
-                        onChange={(e) => handleExperienceChange(index, "description", e.target.value)}
+                        onChange={(e) =>
+                          handleExperienceChange(
+                            index,
+                            "description",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Describe your responsibilities and achievements"
                         className="profile-textarea"
                       />
                     </div>
-                    <button onClick={() => handleRemoveExperience(index)} className="profile-remove-btn">
+                    <button
+                      onClick={() => handleRemoveExperience(index)}
+                      className="profile-remove-btn"
+                    >
                       Remove
                     </button>
                   </div>
                 ))}
                 {(!editData.experience || editData.experience.length === 0) && (
-                  <p className="profile-empty">No experience added yet. Click "Add Experience" to add one.</p>
+                  <p className="profile-empty">
+                    No experience added yet. Click "Add Experience" to add one.
+                  </p>
                 )}
               </div>
             ) : (
               <div className="profile-list">
-                {(profile.experience && profile.experience.length > 0) ? (
+                {profile.experience && profile.experience.length > 0 ? (
                   profile.experience.map((exp, index) => (
                     <div key={index} className="profile-list-item">
                       <div className="profile-list-item-header">
-                        <h3 className="profile-list-item-title">{exp.position}</h3>
-                        {exp.isCurrent && <span className="profile-current-badge">Current</span>}
+                        <h3 className="profile-list-item-title">
+                          {exp.position}
+                        </h3>
+                        {exp.isCurrent && (
+                          <span className="profile-current-badge">Current</span>
+                        )}
                       </div>
-                      <p className="profile-list-item-subtitle"><strong>Company:</strong> {exp.company}</p>
-                      <p className="profile-list-item-date">
-                        <strong>Duration:</strong> {formatDate(exp.startDate)} - {exp.isCurrent ? "Present" : formatDate(exp.endDate)}
+                      <p className="profile-list-item-subtitle">
+                        <strong>Company:</strong> {exp.company}
                       </p>
-                      {exp.description && <p className="profile-list-item-desc"><strong>Description:</strong> {exp.description}</p>}
+                      <p className="profile-list-item-date">
+                        <strong>Duration:</strong> {formatDate(exp.startDate)} -{" "}
+                        {exp.isCurrent ? "Present" : formatDate(exp.endDate)}
+                      </p>
+                      {exp.description && (
+                        <p className="profile-list-item-desc">
+                          <strong>Description:</strong> {exp.description}
+                        </p>
+                      )}
                     </div>
                   ))
                 ) : (
@@ -550,7 +639,10 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
             <div className="profile-section-header">
               <h2 className="profile-section-title">Education</h2>
               {isEditing && isOwnProfile && (
-                <button onClick={handleAddEducation} className="profile-add-btn">
+                <button
+                  onClick={handleAddEducation}
+                  className="profile-add-btn"
+                >
                   + Add Education
                 </button>
               )}
@@ -565,7 +657,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <input
                           type="text"
                           value={edu.institution || ""}
-                          onChange={(e) => handleEducationChange(index, "institution", e.target.value)}
+                          onChange={(e) =>
+                            handleEducationChange(
+                              index,
+                              "institution",
+                              e.target.value,
+                            )
+                          }
                           placeholder="Enter institution name"
                           className="profile-input"
                         />
@@ -574,7 +672,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <label>Degree</label>
                         <select
                           value={edu.degree || ""}
-                          onChange={(e) => handleEducationChange(index, "degree", e.target.value)}
+                          onChange={(e) =>
+                            handleEducationChange(
+                              index,
+                              "degree",
+                              e.target.value,
+                            )
+                          }
                           className="profile-select"
                         >
                           <option value="">Select Degree</option>
@@ -582,13 +686,21 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                           <option value="HSC">HSC</option>
                           <option value="Diploma">Diploma</option>
                           <option value="BSc">BSc (Bachelor of Science)</option>
-                          <option value="BBA">BBA (Bachelor of Business Administration)</option>
+                          <option value="BBA">
+                            BBA (Bachelor of Business Administration)
+                          </option>
                           <option value="BA">BA (Bachelor of Arts)</option>
-                          <option value="BCom">BCom (Bachelor of Commerce)</option>
+                          <option value="BCom">
+                            BCom (Bachelor of Commerce)
+                          </option>
                           <option value="MSc">MSc (Master of Science)</option>
-                          <option value="MBA">MBA (Master of Business Administration)</option>
+                          <option value="MBA">
+                            MBA (Master of Business Administration)
+                          </option>
                           <option value="MA">MA (Master of Arts)</option>
-                          <option value="MCom">MCom (Master of Commerce)</option>
+                          <option value="MCom">
+                            MCom (Master of Commerce)
+                          </option>
                           <option value="PhD">PhD</option>
                           <option value="Other">Other</option>
                         </select>
@@ -599,7 +711,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                       <input
                         type="text"
                         value={edu.fieldOfStudy || ""}
-                        onChange={(e) => handleEducationChange(index, "fieldOfStudy", e.target.value)}
+                        onChange={(e) =>
+                          handleEducationChange(
+                            index,
+                            "fieldOfStudy",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Enter field of study"
                         className="profile-input"
                       />
@@ -609,8 +727,16 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <label>Start Date</label>
                         <input
                           type="date"
-                          value={edu.startDate ? edu.startDate.split("T")[0] : ""}
-                          onChange={(e) => handleEducationChange(index, "startDate", e.target.value)}
+                          value={
+                            edu.startDate ? edu.startDate.split("T")[0] : ""
+                          }
+                          onChange={(e) =>
+                            handleEducationChange(
+                              index,
+                              "startDate",
+                              e.target.value,
+                            )
+                          }
                           className="profile-input"
                         />
                       </div>
@@ -619,7 +745,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                         <input
                           type="date"
                           value={edu.endDate ? edu.endDate.split("T")[0] : ""}
-                          onChange={(e) => handleEducationChange(index, "endDate", e.target.value)}
+                          onChange={(e) =>
+                            handleEducationChange(
+                              index,
+                              "endDate",
+                              e.target.value,
+                            )
+                          }
                           className="profile-input"
                         />
                       </div>
@@ -628,34 +760,58 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                       <label>Description</label>
                       <textarea
                         value={edu.description || ""}
-                        onChange={(e) => handleEducationChange(index, "description", e.target.value)}
+                        onChange={(e) =>
+                          handleEducationChange(
+                            index,
+                            "description",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Describe your education"
                         className="profile-textarea"
                       />
                     </div>
-                    <button onClick={() => handleRemoveEducation(index)} className="profile-remove-btn">
+                    <button
+                      onClick={() => handleRemoveEducation(index)}
+                      className="profile-remove-btn"
+                    >
                       Remove
                     </button>
                   </div>
                 ))}
                 {(!editData.education || editData.education.length === 0) && (
-                  <p className="profile-empty">No education added yet. Click "Add Education" to add one.</p>
+                  <p className="profile-empty">
+                    No education added yet. Click "Add Education" to add one.
+                  </p>
                 )}
               </div>
             ) : (
               <div className="profile-list">
-                {(profile.education && profile.education.length > 0) ? (
+                {profile.education && profile.education.length > 0 ? (
                   profile.education.map((edu, index) => (
                     <div key={index} className="profile-list-item">
                       <div className="profile-list-item-header">
-                        <h3 className="profile-list-item-title">{edu.degree}</h3>
+                        <h3 className="profile-list-item-title">
+                          {edu.degree}
+                        </h3>
                       </div>
-                      <p className="profile-list-item-subtitle"><strong>Institution:</strong> {edu.institution}</p>
-                      {edu.fieldOfStudy && <p className="profile-list-item-subtitle"><strong>Field of Study:</strong> {edu.fieldOfStudy}</p>}
-                      <p className="profile-list-item-date">
-                        <strong>Duration:</strong> {formatDate(edu.startDate)} - {formatDate(edu.endDate)}
+                      <p className="profile-list-item-subtitle">
+                        <strong>Institution:</strong> {edu.institution}
                       </p>
-                      {edu.description && <p className="profile-list-item-desc"><strong>Description:</strong> {edu.description}</p>}
+                      {edu.fieldOfStudy && (
+                        <p className="profile-list-item-subtitle">
+                          <strong>Field of Study:</strong> {edu.fieldOfStudy}
+                        </p>
+                      )}
+                      <p className="profile-list-item-date">
+                        <strong>Duration:</strong> {formatDate(edu.startDate)} -{" "}
+                        {formatDate(edu.endDate)}
+                      </p>
+                      {edu.description && (
+                        <p className="profile-list-item-desc">
+                          <strong>Description:</strong> {edu.description}
+                        </p>
+                      )}
                     </div>
                   ))
                 ) : (
@@ -672,9 +828,13 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                 <span className="profile-field-label">Email Verified</span>
                 <span className="profile-field-value">
                   {profile.isVerified ? (
-                    <span className="profile-status profile-status--verified">✓ Verified</span>
+                    <span className="profile-status profile-status--verified">
+                      ✓ Verified
+                    </span>
                   ) : (
-                    <span className="profile-status profile-status--unverified">✗ Not Verified</span>
+                    <span className="profile-status profile-status--unverified">
+                      ✗ Not Verified
+                    </span>
                   )}
                 </span>
               </div>
@@ -682,23 +842,31 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                 <span className="profile-field-label">Profile Status</span>
                 <span className="profile-field-value">
                   {profile.profileComplete ? (
-                    <span className="profile-status profile-status--verified">✓ Complete</span>
+                    <span className="profile-status profile-status--verified">
+                      ✓ Complete
+                    </span>
                   ) : (
-                    <span className="profile-status profile-status--unverified">✗ Incomplete</span>
+                    <span className="profile-status profile-status--unverified">
+                      ✗ Incomplete
+                    </span>
                   )}
                 </span>
               </div>
-              {profile.role === 'jobProvider' && (
+              {profile.role === "jobProvider" && (
                 <div className="profile-field">
                   <span className="profile-field-label">NID Status</span>
                   <span className="profile-field-value">
-                    <span className="profile-status profile-status--verified">✓ Verified</span>
+                    <span className="profile-status profile-status--verified">
+                      ✓ Verified
+                    </span>
                   </span>
                 </div>
               )}
               <div className="profile-field">
                 <span className="profile-field-label">Account Created</span>
-                <span className="profile-field-value">{formatDate(profile.createdAt)}</span>
+                <span className="profile-field-value">
+                  {formatDate(profile.createdAt)}
+                </span>
               </div>
               {profile.averageRating > 0 && (
                 <div className="profile-field">
@@ -707,7 +875,9 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                     <span className="profile-rating">
                       {"★".repeat(Math.floor(profile.averageRating))}
                       {"☆".repeat(5 - Math.floor(profile.averageRating))}
-                      <span className="profile-rating-number">({profile.averageRating.toFixed(1)})</span>
+                      <span className="profile-rating-number">
+                        ({profile.averageRating.toFixed(1)})
+                      </span>
                     </span>
                   </span>
                 </div>
@@ -715,63 +885,189 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
             </div>
           </div>
 
-
-
-          {profile.certificationImages && profile.certificationImages.length > 0 && (
-            <div className="profile-section">
-              <div className="profile-section-header">
-                <h2 className="profile-section-title">Certification Images</h2>
-              </div>
-              <div className="profile-images">
-                {profile.certificationImages.map((img, index) => (
-                  <div key={index} className="profile-image-wrapper" onClick={() => handleOpenLargeImage(img)} style={{ cursor: 'pointer' }}>
-                    <img src={img} alt={`Certification ${index + 1}`} className="profile-image" />
+          {profile.certificationImages &&
+            profile.certificationImages.length > 0 && (
+              <div className="profile-section">
+                <div className="profile-section-header">
+                  <h2 className="profile-section-title">
+                    Certification Images
+                  </h2>
+                </div>
+                <div className="profile-images">
+                  {profile.certificationImages.map((img, index) => (
+                    <div
+                      key={index}
+                      className="profile-image-wrapper"
+                      onClick={() => handleOpenLargeImage(img)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <img
+                        src={img}
+                        alt={`Certification ${index + 1}`}
+                        className="profile-image"
+                      />
+                    </div>
+                  ))}
+                </div>
+                {isEditing && isOwnProfile && (
+                  <div
+                    className="profile-upload-section"
+                    style={{ marginTop: "16px" }}
+                  >
+                    <p className="profile-upload-label">
+                      Add more certifications:
+                    </p>
+                    <input
+                      type="file"
+                      ref={certFileInputRef}
+                      onChange={handleCertImageChange}
+                      accept="image/*"
+                      multiple
+                      style={{ display: "none" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => certFileInputRef.current?.click()}
+                      className="profile-add-btn"
+                    >
+                      + Add Certification Images
+                    </button>
+                    {newCertImages.length > 0 && (
+                      <div
+                        className="profile-new-images"
+                        style={{ marginTop: "12px" }}
+                      >
+                        <p>New images selected:</p>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "8px",
+                            flexWrap: "wrap",
+                            marginTop: "8px",
+                          }}
+                        >
+                          {newCertImages.map((file, index) => (
+                            <div
+                              key={index}
+                              style={{
+                                position: "relative",
+                                width: "80px",
+                                height: "80px",
+                              }}
+                            >
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={`New ${index + 1}`}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                  borderRadius: "8px",
+                                }}
+                              />
+                              <button
+                                onClick={() => handleRemoveNewCertImage(index)}
+                                style={{
+                                  position: "absolute",
+                                  top: "-8px",
+                                  right: "-8px",
+                                  background: "red",
+                                  color: "white",
+                                  border: "none",
+                                  borderRadius: "50%",
+                                  width: "20px",
+                                  height: "20px",
+                                  cursor: "pointer",
+                                  fontSize: "12px",
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ))}
+                )}
               </div>
-              {isEditing && isOwnProfile && (
-                <div className="profile-upload-section" style={{ marginTop: '16px' }}>
-                  <p className="profile-upload-label">Add more certifications:</p>
+            )}
+          {!profile.certificationImages ||
+            (profile.certificationImages.length === 0 &&
+              isEditing &&
+              isOwnProfile && (
+                <div className="profile-section">
+                  <h2 className="profile-section-title">
+                    Certification Images
+                  </h2>
+                  <p
+                    style={{ color: "var(--text-muted)", marginBottom: "12px" }}
+                  >
+                    No certifications added yet. You can add certifications
+                    below:
+                  </p>
                   <input
                     type="file"
                     ref={certFileInputRef}
                     onChange={handleCertImageChange}
                     accept="image/*"
                     multiple
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => certFileInputRef.current?.click()}
                     className="profile-add-btn"
                   >
                     + Add Certification Images
                   </button>
                   {newCertImages.length > 0 && (
-                    <div className="profile-new-images" style={{ marginTop: '12px' }}>
+                    <div
+                      className="profile-new-images"
+                      style={{ marginTop: "12px" }}
+                    >
                       <p>New images selected:</p>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          flexWrap: "wrap",
+                          marginTop: "8px",
+                        }}
+                      >
                         {newCertImages.map((file, index) => (
-                          <div key={index} style={{ position: 'relative', width: '80px', height: '80px' }}>
-                            <img 
-                              src={URL.createObjectURL(file)} 
-                              alt={`New ${index + 1}`} 
-                              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                          <div
+                            key={index}
+                            style={{
+                              position: "relative",
+                              width: "80px",
+                              height: "80px",
+                            }}
+                          >
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`New ${index + 1}`}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                              }}
                             />
                             <button
                               onClick={() => handleRemoveNewCertImage(index)}
                               style={{
-                                position: 'absolute',
-                                top: '-8px',
-                                right: '-8px',
-                                background: 'red',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '50%',
-                                width: '20px',
-                                height: '20px',
-                                cursor: 'pointer',
-                                fontSize: '12px',
+                                position: "absolute",
+                                top: "-8px",
+                                right: "-8px",
+                                background: "red",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "50%",
+                                width: "20px",
+                                height: "20px",
+                                cursor: "pointer",
+                                fontSize: "12px",
                               }}
                             >
                               ✕
@@ -782,78 +1078,24 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          )}
-          {!profile.certificationImages || profile.certificationImages.length === 0 && isEditing && isOwnProfile && (
-            <div className="profile-section">
-              <h2 className="profile-section-title">Certification Images</h2>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '12px' }}>No certifications added yet. You can add certifications below:</p>
-              <input
-                type="file"
-                ref={certFileInputRef}
-                onChange={handleCertImageChange}
-                accept="image/*"
-                multiple
-                style={{ display: 'none' }}
-              />
-              <button 
-                type="button" 
-                onClick={() => certFileInputRef.current?.click()}
-                className="profile-add-btn"
-              >
-                + Add Certification Images
-              </button>
-              {newCertImages.length > 0 && (
-                <div className="profile-new-images" style={{ marginTop: '12px' }}>
-                  <p>New images selected:</p>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
-                    {newCertImages.map((file, index) => (
-                      <div key={index} style={{ position: 'relative', width: '80px', height: '80px' }}>
-                        <img 
-                          src={URL.createObjectURL(file)} 
-                          alt={`New ${index + 1}`} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
-                        />
-                        <button
-                          onClick={() => handleRemoveNewCertImage(index)}
-                          style={{
-                            position: 'absolute',
-                            top: '-8px',
-                            right: '-8px',
-                            background: 'red',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '20px',
-                            height: '20px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                          }}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+              ))}
         </div>
 
         <div className="profile-actions">
           {isEditing ? (
             <>
-              <button 
-                onClick={handleSaveChanges} 
+              <button
+                onClick={handleSaveChanges}
                 className="profile-btn profile-btn--primary"
                 disabled={updating}
               >
                 {updating ? "Saving..." : "Save Changes"}
               </button>
-              <button 
-                onClick={() => { setIsEditing(false); setEditData(profile); }} 
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditData(profile);
+                }}
                 className="profile-btn profile-btn--secondary"
                 disabled={updating}
               >
@@ -863,11 +1105,17 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
           ) : (
             <>
               {isOwnProfile && (
-                <button onClick={() => setIsEditing(true)} className="profile-btn profile-btn--primary">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="profile-btn profile-btn--primary"
+                >
                   Edit Profile
                 </button>
               )}
-              <button onClick={() => navigate("/dashboard")} className="profile-btn profile-btn--secondary">
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="profile-btn profile-btn--secondary"
+              >
                 Go to Dashboard
               </button>
             </>
@@ -876,9 +1124,21 @@ formData.append("jobField", JSON.stringify(editData.jobField || []));
       </div>
       {showLargeImage && largeImageUrl && (
         <div className="large-image-modal" onClick={handleCloseLargeImage}>
-          <div className="large-image-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="large-image-modal-close" onClick={handleCloseLargeImage}>×</button>
-            <img src={largeImageUrl} alt="Large view" className="large-image-modal-img" />
+          <div
+            className="large-image-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="large-image-modal-close"
+              onClick={handleCloseLargeImage}
+            >
+              ×
+            </button>
+            <img
+              src={largeImageUrl}
+              alt="Large view"
+              className="large-image-modal-img"
+            />
           </div>
         </div>
       )}

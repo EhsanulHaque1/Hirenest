@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import "./Chat.css";
 import ProfilePopup from "../Components/ProfilePopup";
+import { getAuthToken, getAuthUser } from "../utils/cookies";
 
 const SOCKET_URL = "http://localhost:5004";
 
@@ -48,12 +49,11 @@ function Chat() {
 
   // Initialize socket connection
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("hirenest_user");
+    const token = getAuthToken();
+    const userData = getAuthUser();
 
     if (token && userData) {
-      const parsedUser = JSON.parse(userData);
-      setCurrentUser(parsedUser);
+      setCurrentUser(userData);
 
       // Connect to socket
       socketRef.current = io(SOCKET_URL, {
@@ -130,7 +130,7 @@ function Chat() {
   // Fetch conversations
   const fetchConversations = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const response = await fetch(`${SOCKET_URL}/api/chat/conversations`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -147,7 +147,7 @@ function Chat() {
   // Fetch messages with selected user
   const fetchMessages = async (userId) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const response = await fetch(
         `${SOCKET_URL}/api/chat/messages/${userId}`,
         {
@@ -170,7 +170,7 @@ function Chat() {
     if (!searchQuery && !searchRole) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const params = new URLSearchParams();
       if (searchQuery) params.append("query", searchQuery);
       if (searchRole) params.append("role", searchRole);
@@ -219,7 +219,7 @@ function Chat() {
     if (!newMessage.trim() || !selectedUser) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const response = await fetch(`${SOCKET_URL}/api/chat/messages`, {
         method: "POST",
         headers: {
@@ -286,7 +286,7 @@ function Chat() {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const response = await fetch(
         `${SOCKET_URL}/api/chat/messages/${messageId}`,
         {
@@ -329,7 +329,7 @@ function Chat() {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       const response = await fetch(
         `${SOCKET_URL}/api/chat/conversations/${selectedUser._id}`,
         {

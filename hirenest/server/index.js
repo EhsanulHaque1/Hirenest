@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -38,6 +39,7 @@ const PORT = process.env.PORT || 5004;
 
 /* Middleware */
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 
 /* Create HTTP server with Socket.io */

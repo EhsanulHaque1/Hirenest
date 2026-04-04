@@ -71,6 +71,15 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
       expiresIn: "7d",
     });
+
+    // Set token as httpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     res.json({
       id: user._id,
       firstName: user.firstName,
@@ -78,7 +87,7 @@ export const loginUser = async (req, res) => {
       email: user.email,
       username: user.username,
       role: user.role,
-      token,
+      token, // Keep for backward compatibility
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -181,4 +190,9 @@ export const resetPassword = async (req, res) => {
     console.error("Reset password error:", error);
     res.status(500).json({ error: "Server error" });
   }
+};
+
+export const logoutUser = async (req, res) => {
+  res.clearCookie("token");
+  res.json({ message: "Logged out successfully" });
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./Pages.css";
+import { getAuthToken, getAuthUser } from "../utils/cookies";
 
 function AdminPanel() {
   const [complaint, setComplaint] = useState("");
@@ -16,11 +17,12 @@ function AdminPanel() {
   }, [showMyComplaints]);
 
   const fetchMyComplaints = async () => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("hirenest_user");
+    const token = getAuthToken();
+    const userData = getAuthUser();
     if (!token || !userData) return;
 
-    const currentUser = JSON.parse(userData);
+    // getAuthUser() already returns parsed object, no need to JSON.parse
+    const currentUser = userData;
     // Login API returns "id", not "_id"
     const currentUserId = currentUser.id || currentUser._id;
     const currentUsername = currentUser.username;
@@ -67,7 +69,7 @@ function AdminPanel() {
     setLoading(true);
     setError("");
 
-    const token = localStorage.getItem("token");
+    const token = getAuthToken();
     if (!token) {
       setError("Please login first");
       setLoading(false);
@@ -140,8 +142,8 @@ function AdminPanel() {
               <div className="success-icon-modern">✓</div>
               <h2>Complaint Submitted Successfully!</h2>
               <p>
-                Thank you for your feedback. We will review your complaint and get
-                back to you soon.
+                Thank you for your feedback. We will review your complaint and
+                get back to you soon.
               </p>
               <button
                 className="btn-modern-primary"
@@ -167,7 +169,9 @@ function AdminPanel() {
                 </div>
                 <form onSubmit={handleSubmit} className="complaint-form-modern">
                   {error && (
-                    <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>
+                    <p style={{ color: "red", marginBottom: "10px" }}>
+                      {error}
+                    </p>
                   )}
                   <div className="textarea-wrapper-modern">
                     <textarea
@@ -236,23 +240,30 @@ function AdminPanel() {
                     </div>
                   </div>
                   <div className="complaint-content">
-                    <p><strong>Your Complaint:</strong></p>
+                    <p>
+                      <strong>Your Complaint:</strong>
+                    </p>
                     <p>{complaint.complaintText}</p>
                   </div>
-                  
-                  {complaint.status === "resolved" && complaint.resolutionMessage && (
-                    <div className="resolution-message-user">
-                      <div className="resolution-header">
-                        <span className="resolution-icon">✓</span>
-                        <strong>Your Problem is Solved!</strong>
+
+                  {complaint.status === "resolved" &&
+                    complaint.resolutionMessage && (
+                      <div className="resolution-message-user">
+                        <div className="resolution-header">
+                          <span className="resolution-icon">✓</span>
+                          <strong>Your Problem is Solved!</strong>
+                        </div>
+                        <p className="resolution-text">
+                          {complaint.resolutionMessage}
+                        </p>
                       </div>
-                      <p className="resolution-text">{complaint.resolutionMessage}</p>
-                    </div>
-                  )}
+                    )}
 
                   {complaint.status === "pending" && (
                     <div className="pending-message">
-                      <p>⏳ Your complaint is being reviewed by our admin team.</p>
+                      <p>
+                        ⏳ Your complaint is being reviewed by our admin team.
+                      </p>
                     </div>
                   )}
                 </div>

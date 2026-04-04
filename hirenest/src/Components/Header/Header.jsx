@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "./Header.css";
+import { setAuthCookie, clearAuthCookies } from "../../utils/cookies";
 
 const Header = ({
   showSignIn,
@@ -64,8 +65,11 @@ const Header = ({
         role: "admin",
         profileComplete: true,
       };
+      // Store in both localStorage and cookies for backward compatibility
       localStorage.setItem("token", "admin-token");
       localStorage.setItem("hirenest_user", JSON.stringify(adminUser));
+      setAuthCookie("token", "admin-token");
+      setAuthCookie("hirenest_user", JSON.stringify(adminUser));
       setUser(adminUser);
       setShowSignIn(false);
       setSignInData({ username: "", password: "" });
@@ -84,8 +88,9 @@ const Header = ({
       if (!res.ok) throw new Error(data.error || "Sign in failed");
 
       const userData = { ...data };
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("hirenest_user", JSON.stringify(userData));
+      // Store token in cookie (httpOnly cookie is set by server)
+      setAuthCookie("token", data.token);
+      setAuthCookie("hirenest_user", JSON.stringify(userData));
       setUser(userData);
       setShowSignIn(false);
       setSignInData({ username: "", password: "" });
@@ -254,8 +259,7 @@ const Header = ({
                   <button
                     className="btn-logout"
                     onClick={() => {
-                      localStorage.removeItem("token");
-                      localStorage.removeItem("hirenest_user");
+                      clearAuthCookies();
                       setUser(null);
                       navigate("/");
                     }}
