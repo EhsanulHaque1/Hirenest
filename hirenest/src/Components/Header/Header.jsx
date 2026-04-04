@@ -45,6 +45,7 @@ const Header = ({
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -82,6 +83,7 @@ const Header = ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(signInData),
+        credentials: "include",
       });
 
       const data = await res.json();

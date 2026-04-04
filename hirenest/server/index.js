@@ -38,7 +38,10 @@ const app = express();
 const PORT = process.env.PORT || 5004;
 
 /* Middleware */
-app.use(cors());
+app.use(cors({
+  origin: true, // Allow all origins when credentials are needed
+  credentials: true,
+}));
 app.use(cookieParser());
 app.use(express.json());
 

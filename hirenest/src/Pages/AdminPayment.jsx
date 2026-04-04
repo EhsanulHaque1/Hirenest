@@ -120,17 +120,24 @@ function AdminPayment() {
   };
 
   const getPaymentRecipient = (job) => {
-    if (job.acceptedApplicant) {
+    if (job.acceptedApplicant && job.acceptedApplicant.firstName) {
       return {
         type: "jobSeeker",
-        name: `${job.acceptedApplicant.firstName} ${job.acceptedApplicant.lastName}`,
+        name: `${job.acceptedApplicant.firstName} ${job.acceptedApplicant.lastName || ""}`,
         email: job.acceptedApplicant.email,
       };
     }
+    if (job.postedBy && job.postedBy.firstName) {
+      return {
+        type: "jobProvider",
+        name: `${job.postedBy.firstName} ${job.postedBy.lastName || ""}`,
+        email: job.postedBy.email,
+      };
+    }
     return {
-      type: "jobProvider",
-      name: `${job.postedBy.firstName} ${job.postedBy.lastName}`,
-      email: job.postedBy.email,
+      type: "unknown",
+      name: "Unknown User",
+      email: "N/A",
     };
   };
 

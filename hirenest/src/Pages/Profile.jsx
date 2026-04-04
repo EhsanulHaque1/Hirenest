@@ -42,6 +42,7 @@ const Profile = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          credentials: "include",
         });
 
         if (!res.ok) {
@@ -85,6 +86,7 @@ const Profile = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: formData,
       });
 
@@ -99,9 +101,12 @@ const Profile = () => {
       setEditData(data.user);
 
       // Update localStorage user data
-      const userData = JSON.parse(localStorage.getItem("hirenest_user"));
-      userData.profilePicture = data.user.profilePicture;
-      localStorage.setItem("hirenest_user", JSON.stringify(userData));
+      const storedUser = localStorage.getItem("hirenest_user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        userData.profilePicture = data.user.profilePicture;
+        localStorage.setItem("hirenest_user", JSON.stringify(userData));
+      }
 
       alert("Profile picture updated successfully!");
     } catch (err) {
@@ -236,6 +241,7 @@ const Profile = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             firstName: editData.firstName,
             lastName: editData.lastName,
@@ -259,11 +265,14 @@ const Profile = () => {
       setIsEditing(false);
 
       // Update localStorage user data
-      const userData = JSON.parse(localStorage.getItem("hirenest_user"));
-      userData.firstName = editData.firstName;
-      userData.lastName = editData.lastName;
-      userData.jobField = editData.jobField;
-      localStorage.setItem("hirenest_user", JSON.stringify(userData));
+      const storedUser = localStorage.getItem("hirenest_user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        userData.firstName = editData.firstName;
+        userData.lastName = editData.lastName;
+        userData.jobField = editData.jobField;
+        localStorage.setItem("hirenest_user", JSON.stringify(userData));
+      }
 
       alert("Profile updated successfully!");
       // Navigate back with refresh state to ensure BrowseApply gets updated user data

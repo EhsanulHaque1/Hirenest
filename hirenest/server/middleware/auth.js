@@ -4,12 +4,21 @@ const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey";
 
 export const verifyToken = (req, res, next) => {
   try {
+    let token;
+
+    // Check Authorization header first
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Access token required" });
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
+    // Fallback to cookie
+    else if (req.cookies.token) {
+      token = req.cookies.token;
     }
 
-    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "Access token required" });
+    }
     
     // Special case for admin token
     if (token === "admin-token") {
