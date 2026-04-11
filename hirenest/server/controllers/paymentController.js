@@ -3,6 +3,7 @@ import Job from '../models/Job.js';
 import User from '../models/User.js';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
+import { createNotification } from './notificationController.js';
 
 const STORE_ID = process.env.SSLCOMMERZ_STORE_ID;
 const STORE_PASSWORD = process.env.SSLCOMMERZ_STORE_PASSWORD;

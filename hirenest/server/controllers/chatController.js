@@ -1,6 +1,7 @@
 import Message from "../models/Chat.js";
 import Conversation from "../models/Conversation.js";
 import User from "../models/User.js";
+import { createNotification } from "./notificationController.js";
 
 // Get all conversations for the current user
 export const getConversations = async (req, res) => {
@@ -153,6 +154,17 @@ export const sendMessage = async (req, res) => {
     conversation.lastMessageAt = new Date();
     await conversation.incrementUnread(receiverId);
     await conversation.save();
+
+    // Create notification for receiver
+    const sender = await User.findById(senderId).select('firstName lastName');
+    await createNotification(
+      receiverId,
+      'newMessage',
+      'New Message',
+      `${sender.firstName} ${sender.lastName} sent you a message`,
+      conversation._id,
+      'Chat'
+    );
 
     // Populate sender info for response
     const populatedMessage = await Message.findById(message._id)

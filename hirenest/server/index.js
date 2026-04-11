@@ -16,6 +16,7 @@ import connectDB from "./connect.cjs";
 import User from "./models/User.js";
 import Message from "./models/Chat.js";
 import Conversation from "./models/Conversation.js";
+import { createNotification } from "./controllers/notificationController.js";
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -25,6 +26,7 @@ import complaintRoutes from "./routes/complaintRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 import verifyToken from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
 
@@ -63,6 +65,7 @@ app.use("/api/complaints", complaintRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 /* Socket.io Authentication Middleware */
 io.use((socket, next) => {
@@ -125,6 +128,17 @@ io.on("connection", (socket) => {
       // Emit to both users
       const roomId = [socket.userId, receiverId].sort().join("_");
       io.to(roomId).emit("new_message", populatedMessage);
+
+      // Create notification for receiver
+      const sender = await User.findById(socket.userId).select('firstName lastName');
+      await createNotification(
+        receiverId,
+        'newMessage',
+        'New Message',
+        `${sender.firstName} ${sender.lastName} sent you a message`,
+        conversation._id,
+        'Chat'
+      );
 
       // Also emit notification to receiver
       io.to(receiverId).emit("message_notification", {

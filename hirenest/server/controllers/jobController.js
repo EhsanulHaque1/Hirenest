@@ -1,5 +1,6 @@
 import Job from '../models/Job.js';
 import User from '../models/User.js';
+import { createNotification } from './notificationController.js';
 
 export const createJob = async (req, res) => {
   try {
@@ -110,6 +111,22 @@ export const applyForJob = async (req, res) => {
 
     job.applicants.push({ user: userId, proposal });
     await job.save();
+
+    // Notify the job provider about new applicant
+    const jobPoster = await User.findById(job.postedBy);
+    console.log('Job poster for notification:', jobPoster ? jobPoster._id : 'not found');
+    if (jobPoster) {
+      console.log('Creating notification for job provider:', jobPoster._id, 'for job:', job.title);
+      await createNotification(
+        job.postedBy,
+        'newApplicant',
+        'New Job Applicant',
+        `${user.firstName} ${user.lastName} has applied for "${job.title}"`,
+        job._id,
+        'Job'
+      );
+      console.log('Notification created for job provider');
+    }
 
     user.appliedJobs.push(jobId);
     await user.save();
@@ -265,6 +282,32 @@ export const acceptApplicant = async (req, res) => {
 
     job.acceptedApplicant = applicantId;
     await job.save();
+
+    // Notify the job seeker that their application was accepted
+    const jobSeeker = await User.findById(applicantId);
+    if (jobSeeker) {
+      await createNotification(
+        applicantId,
+        'applicationAccepted',
+        'Application Accepted',
+        `Your application for "${job.title}" has been accepted!`,
+        job._id,
+        'Job'
+      );
+    }
+
+    // Notify the job provider that their job was accepted
+    const jobProvider = await User.findById(userId);
+    if (jobProvider) {
+      await createNotification(
+        userId,
+        'jobAccepted',
+        'Job Application Accepted',
+        `You have accepted an applicant for "${job.title}"`,
+        job._id,
+        'Job'
+      );
+    }
 
     res.json({ 
       message: 'Applicant accepted successfully', 

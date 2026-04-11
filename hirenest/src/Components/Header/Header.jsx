@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "./Header.css";
-import { setAuthCookie, clearAuthCookies } from "../../utils/cookies";
+import { setAuthCookie, clearAuthCookies, getToken } from "../../utils/cookies";
 
 const Header = ({
   showSignIn,
@@ -28,6 +28,84 @@ const Header = ({
     confirmPassword: "",
     role: "",
   });
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notificationRef = useRef(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE}/notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const markAsRead = async (notificationId = null) => {
+    try {
+      const token = getToken();
+      const url = notificationId 
+        ? `${API_BASE}/notifications/read/${notificationId}`
+        : `${API_BASE}/notifications/read-all`;
+      await fetch(url, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
+      });
+      fetchNotifications();
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'newMessage': return '💬';
+      case 'applicationAccepted': return '✅';
+      case 'jobAccepted': return '🎉';
+      case 'pendingPayment': return '💰';
+      case 'newApplicant': return '📝';
+      default: return '🔔';
+    }
+  };
+
+  const formatTime = (date) => {
+    const now = new Date();
+    const diff = now - new Date(date);
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
 
   const handleSignInChange = (e) => {
     const { name, value } = e.target;
@@ -252,10 +330,73 @@ const Header = ({
                   )}
                   <Link
                     to="/profile"
-                    style={{ textDecoration: "none", color: "inherit" }}
+                    style={{ textDecoration: "none", color: "inherit", marginRight: "8px" }}
                   >
                     Hi, {user.firstName || user.username}
                   </Link>
+                  {user.role !== "admin" && (
+                    <div style={{ position: "relative" }} ref={notificationRef}>
+                      <button
+                        className="notification-btn"
+                        onClick={() => {
+                          if (!showNotifications) {
+                            markAsRead();
+                          }
+                          setShowNotifications(!showNotifications);
+                        }}
+                        title="Notifications"
+                      >
+                        🔔
+                        {unreadCount > 0 && (
+                          <span className="notification-badge">
+                            {unreadCount > 9 ? "9+" : unreadCount}
+                          </span>
+                        )}
+                      </button>
+                      {showNotifications && (
+                        <div className="notification-dropdown">
+                          <div className="notification-header">
+                            <span>Notifications</span>
+                            {unreadCount > 0 && (
+                              <button onClick={() => markAsRead()}>
+                                Mark all read
+                              </button>
+                            )}
+                          </div>
+                          {notifications.length === 0 ? (
+                            <div className="notification-empty">
+                              No notifications
+                            </div>
+                          ) : (
+                            notifications.map((notif) => (
+                              <div
+                                key={notif._id}
+                                className={`notification-item ${notif.isRead ? '' : 'unread'}`}
+                                onClick={() => markAsRead(notif._id)}
+                              >
+                                <div className="notification-content">
+                                  <span className="notification-icon">
+                                    {getNotificationIcon(notif.type)}
+                                  </span>
+                                  <div className="notification-text">
+                                    <div className="notification-title">
+                                      {notif.title}
+                                    </div>
+                                    <div className="notification-message">
+                                      {notif.message}
+                                    </div>
+                                    <div className="notification-time">
+                                      {formatTime(notif.createdAt)}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </li>
                 <li>
                   <button
