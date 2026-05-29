@@ -30,8 +30,14 @@ function Chat() {
   const [showMenu, setShowMenu] = useState(false);
 
   const socketRef = useRef(null);
+  const selectedUserRef = useRef(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+
+  const getEntityId = (value) => {
+    if (!value) return null;
+    return typeof value === "object" ? value._id : value;
+  };
 
   // Check for chat_with parameter and auto-open conversation
   useEffect(() => {
@@ -46,6 +52,11 @@ function Chat() {
       }
     }
   }, [currentUser]);
+
+  // Initialize socket connection
+  useEffect(() => {
+    selectedUserRef.current = selectedUser;
+  }, [selectedUser]);
 
   // Initialize socket connection
   useEffect(() => {
@@ -65,12 +76,19 @@ function Chat() {
 
       socketRef.current.on("connect", () => {
         console.log("Connected to socket");
+
+        // Re-join the currently open conversation room after reconnect.
+        if (selectedUserRef.current?._id) {
+          socketRef.current.emit("join_chat", selectedUserRef.current._id);
+        }
       });
 
       socketRef.current.on("new_message", (message) => {
-        // Only add message if it's from the other user (not from us sending)
-        // We check if the sender ID matches the selected user's ID
-        if (selectedUser && message.senderId._id === selectedUser._id) {
+        const activeUser = selectedUserRef.current;
+        const senderId = getEntityId(message.senderId);
+
+        // Only add message if it's from the user in the currently opened chat.
+        if (activeUser && senderId === activeUser._id) {
           // Check if message already exists to avoid duplicates
           setMessages((prev) => {
             const exists = prev.some((m) => m._id === message._id);
@@ -82,18 +100,21 @@ function Chat() {
           scrollToBottom();
           // Mark as read
           socketRef.current.emit("mark_read", {
-            otherUserId: selectedUser._id,
+            otherUserId: activeUser._id,
           });
         }
+
+        fetchConversations();
       });
 
       socketRef.current.on("user_typing", ({ userId, isTyping }) => {
-        if (selectedUser && userId === selectedUser._id) {
+        const activeUser = selectedUserRef.current;
+        if (activeUser && userId === activeUser._id) {
           setOtherUserTyping(isTyping);
         }
       });
 
-      socketRef.current.on("message_notification", ({ message }) => {
+      socketRef.current.on("message_notification", () => {
         // Refresh conversations to update unread count
         fetchConversations();
       });
@@ -120,12 +141,15 @@ function Chat() {
       fetchConversations();
 
       return () => {
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
         if (socketRef.current) {
           socketRef.current.disconnect();
         }
       };
     }
-  }, [selectedUser]);
+  }, []);
 
   // Fetch conversations
   const fetchConversations = async () => {
@@ -207,7 +231,9 @@ function Chat() {
     setOtherUserTyping(false);
 
     // Join socket room
-    socketRef.current.emit("join_chat", user._id);
+    if (socketRef.current?.connected) {
+      socketRef.current.emit("join_chat", user._id);
+    }
 
     // Fetch messages
     fetchMessages(user._id);
@@ -300,12 +326,6 @@ function Chat() {
       if (response.ok) {
         // Remove message from UI
         setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
-
-        // Emit socket event to notify other user
-        socketRef.current.emit("message_deleted", {
-          messageId,
-          receiverId: selectedUser._id,
-        });
 
         // Refresh conversations to update last message
         fetchConversations();
@@ -625,7 +645,7 @@ function Chat() {
                 <div className="messages-list">
                   {messages.map((message, index) => {
                     const isOwnMessage =
-                      message.senderId._id ===
+                      getEntityId(message.senderId) ===
                       (currentUser.id || currentUser._id);
                     const showDate =
                       index === 0 ||

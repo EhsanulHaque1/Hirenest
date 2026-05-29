@@ -40,10 +40,12 @@ const app = express();
 const PORT = process.env.PORT || 5004;
 
 /* Middleware */
-app.use(cors({
-  origin: true, // Allow all origins when credentials are needed
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: true, // Allow all origins when credentials are needed
+    credentials: true,
+  }),
+);
 app.use(cookieParser());
 app.use(express.json());
 
@@ -55,6 +57,9 @@ const io = new Server(httpServer, {
     methods: ["GET", "POST", "PATCH", "DELETE"],
   },
 });
+
+// Make socket server available inside controllers via req.app.get("io")
+app.set("io", io);
 
 /* Connect Database */
 connectDB();
@@ -130,14 +135,16 @@ io.on("connection", (socket) => {
       io.to(roomId).emit("new_message", populatedMessage);
 
       // Create notification for receiver
-      const sender = await User.findById(socket.userId).select('firstName lastName');
+      const sender = await User.findById(socket.userId).select(
+        "firstName lastName",
+      );
       await createNotification(
         receiverId,
-        'newMessage',
-        'New Message',
+        "newMessage",
+        "New Message",
         `${sender.firstName} ${sender.lastName} sent you a message`,
         conversation._id,
-        'Chat'
+        "Chat",
       );
 
       // Also emit notification to receiver

@@ -122,6 +122,7 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
   try {
     const senderId = req.user.id;
+    const io = req.app.get("io");
     const { receiverId, content, jobContext } = req.body;
 
     if (!receiverId || !content) {
@@ -156,20 +157,30 @@ export const sendMessage = async (req, res) => {
     await conversation.save();
 
     // Create notification for receiver
-    const sender = await User.findById(senderId).select('firstName lastName');
+    const sender = await User.findById(senderId).select("firstName lastName");
     await createNotification(
       receiverId,
-      'newMessage',
-      'New Message',
+      "newMessage",
+      "New Message",
       `${sender.firstName} ${sender.lastName} sent you a message`,
       conversation._id,
-      'Chat'
+      "Chat",
     );
 
     // Populate sender info for response
     const populatedMessage = await Message.findById(message._id)
       .populate("senderId", "firstName lastName username profilePicture")
       .populate("receiverId", "firstName lastName username profilePicture");
+
+    // Emit live chat and notification events for connected users.
+    if (io) {
+      const roomId = [senderId, receiverId].sort().join("_");
+      io.to(roomId).emit("new_message", populatedMessage);
+      io.to(receiverId).emit("message_notification", {
+        conversationId: conversation._id,
+        message: populatedMessage,
+      });
+    }
 
     res.status(201).json(populatedMessage);
   } catch (error) {
@@ -216,6 +227,7 @@ export const searchUsers = async (req, res) => {
 export const markAsRead = async (req, res) => {
   try {
     const userId = req.user.id;
+    const io = req.app.get("io");
     const { otherUserId } = req.params;
 
     await Message.updateMany(
@@ -231,6 +243,13 @@ export const markAsRead = async (req, res) => {
       await conversation.markAsRead(userId);
     }
 
+    if (io) {
+      const roomId = [userId, otherUserId].sort().join("_");
+      io.to(roomId).emit("messages_read", {
+        readerId: userId,
+      });
+    }
+
     res.json({ success: true });
   } catch (error) {
     console.error("Mark as read error:", error);
@@ -242,6 +261,7 @@ export const markAsRead = async (req, res) => {
 export const deleteMessage = async (req, res) => {
   try {
     const userId = req.user.id;
+    const io = req.app.get("io");
     const { messageId } = req.params;
 
     const message = await Message.findById(messageId);
@@ -256,6 +276,12 @@ export const deleteMessage = async (req, res) => {
 
     message.deletedBy.push(userId);
     await message.save();
+
+    if (io) {
+      const receiverId = message.receiverId.toString();
+      const roomId = [userId, receiverId].sort().join("_");
+      io.to(roomId).emit("message_deleted", { messageId });
+    }
 
     res.json({ success: true });
   } catch (error) {
